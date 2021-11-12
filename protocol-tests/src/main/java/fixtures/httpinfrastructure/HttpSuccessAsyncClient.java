@@ -4,6 +4,7 @@
 
 package fixtures.httpinfrastructure;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.annotation.ServiceMethod;
@@ -16,13 +17,14 @@ import reactor.core.publisher.Mono;
 /** Initializes a new instance of the asynchronous AutoRestHttpInfrastructureTestService type. */
 @ServiceClient(builder = AutoRestHttpInfrastructureTestServiceBuilder.class, isAsync = true)
 public final class HttpSuccessAsyncClient {
-    private final HttpSuccessImpl serviceClient;
+    @Generated private final HttpSuccessImpl serviceClient;
 
     /**
      * Initializes an instance of HttpSuccess client.
      *
      * @param serviceClient the service client implementation.
      */
+    @Generated
     HttpSuccessAsyncClient(HttpSuccessImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
@@ -35,6 +37,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> head200WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.head200WithResponseAsync(requestOptions);
@@ -54,9 +57,30 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return 200 success.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Boolean>> get200WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.get200WithResponseAsync(requestOptions);
+    }
+
+    /**
+     * Options 200 success.
+     *
+     * <p><strong>Response Body Schema</strong>
+     *
+     * <pre>{@code
+     * boolean
+     * }</pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return simple boolean.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Boolean>> options200WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.options200WithResponseAsync(requestOptions);
     }
 
     /**
@@ -73,6 +97,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> put200WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.put200WithResponseAsync(requestOptions);
@@ -92,6 +117,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> patch200WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.patch200WithResponseAsync(requestOptions);
@@ -111,6 +137,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> post200WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.post200WithResponseAsync(requestOptions);
@@ -130,6 +157,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> delete200WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.delete200WithResponseAsync(requestOptions);
@@ -149,6 +177,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> put201WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.put201WithResponseAsync(requestOptions);
@@ -168,6 +197,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> post201WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.post201WithResponseAsync(requestOptions);
@@ -187,6 +217,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> put202WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.put202WithResponseAsync(requestOptions);
@@ -206,6 +237,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> patch202WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.patch202WithResponseAsync(requestOptions);
@@ -225,6 +257,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> post202WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.post202WithResponseAsync(requestOptions);
@@ -244,6 +277,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> delete202WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.delete202WithResponseAsync(requestOptions);
@@ -257,6 +291,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> head204WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.head204WithResponseAsync(requestOptions);
@@ -276,6 +311,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> put204WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.put204WithResponseAsync(requestOptions);
@@ -295,6 +331,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> patch204WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.patch204WithResponseAsync(requestOptions);
@@ -314,6 +351,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> post204WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.post204WithResponseAsync(requestOptions);
@@ -333,6 +371,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return the completion.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> delete204WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.delete204WithResponseAsync(requestOptions);
@@ -352,6 +391,7 @@ public final class HttpSuccessAsyncClient {
      *     false.
      * @return whether resource exists.
      */
+    @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Boolean>> head404WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.head404WithResponseAsync(requestOptions);

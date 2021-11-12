@@ -9,6 +9,7 @@ import com.azure.core.annotation.Get;
 import com.azure.core.annotation.Head;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
+import com.azure.core.annotation.Options;
 import com.azure.core.annotation.Patch;
 import com.azure.core.annotation.Post;
 import com.azure.core.annotation.Put;
@@ -61,6 +62,10 @@ public final class HttpRetriesImpl {
         @Get("/http/retry/502")
         Mono<Response<Void>> get502(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
+        @Options("/http/retry/502")
+        Mono<Response<Boolean>> options502(
+                @HostParam("$host") String host, RequestOptions requestOptions, Context context);
+
         @Post("/http/retry/503")
         Mono<Response<Void>> post503(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
@@ -105,14 +110,13 @@ public final class HttpRetriesImpl {
      * Return 408 status code, then 200 after retry.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head408WithResponse(RequestOptions requestOptions, Context context) {
-        return head408WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head408WithResponse(RequestOptions requestOptions) {
+        return head408WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -164,14 +168,13 @@ public final class HttpRetriesImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put500WithResponse(RequestOptions requestOptions, Context context) {
-        return put500WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put500WithResponse(RequestOptions requestOptions) {
+        return put500WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -223,14 +226,13 @@ public final class HttpRetriesImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch500WithResponse(RequestOptions requestOptions, Context context) {
-        return patch500WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch500WithResponse(RequestOptions requestOptions) {
+        return patch500WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -264,14 +266,71 @@ public final class HttpRetriesImpl {
      * Return 502 status code, then 200 after retry.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get502WithResponse(RequestOptions requestOptions, Context context) {
-        return get502WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get502WithResponse(RequestOptions requestOptions) {
+        return get502WithResponseAsync(requestOptions).block();
+    }
+
+    /**
+     * Return 502 status code, then 200 after retry.
+     *
+     * <p><strong>Response Body Schema</strong>
+     *
+     * <pre>{@code
+     * boolean
+     * }</pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return simple boolean.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Boolean>> options502WithResponseAsync(RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.options502(this.client.getHost(), requestOptions, context));
+    }
+
+    /**
+     * Return 502 status code, then 200 after retry.
+     *
+     * <p><strong>Response Body Schema</strong>
+     *
+     * <pre>{@code
+     * boolean
+     * }</pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param context The context to associate with this operation.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return simple boolean.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Boolean>> options502WithResponseAsync(RequestOptions requestOptions, Context context) {
+        return service.options502(this.client.getHost(), requestOptions, context);
+    }
+
+    /**
+     * Return 502 status code, then 200 after retry.
+     *
+     * <p><strong>Response Body Schema</strong>
+     *
+     * <pre>{@code
+     * boolean
+     * }</pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return simple boolean.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Boolean> options502WithResponse(RequestOptions requestOptions) {
+        return options502WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -323,14 +382,13 @@ public final class HttpRetriesImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post503WithResponse(RequestOptions requestOptions, Context context) {
-        return post503WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post503WithResponse(RequestOptions requestOptions) {
+        return post503WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -382,14 +440,13 @@ public final class HttpRetriesImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delete503WithResponse(RequestOptions requestOptions, Context context) {
-        return delete503WithResponseAsync(requestOptions, context).block();
+    public Response<Void> delete503WithResponse(RequestOptions requestOptions) {
+        return delete503WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -441,14 +498,13 @@ public final class HttpRetriesImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put504WithResponse(RequestOptions requestOptions, Context context) {
-        return put504WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put504WithResponse(RequestOptions requestOptions) {
+        return put504WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -500,13 +556,12 @@ public final class HttpRetriesImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch504WithResponse(RequestOptions requestOptions, Context context) {
-        return patch504WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch504WithResponse(RequestOptions requestOptions) {
+        return patch504WithResponseAsync(requestOptions).block();
     }
 }

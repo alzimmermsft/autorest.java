@@ -9,6 +9,7 @@ import com.azure.core.annotation.Get;
 import com.azure.core.annotation.Head;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
+import com.azure.core.annotation.Options;
 import com.azure.core.annotation.Patch;
 import com.azure.core.annotation.Post;
 import com.azure.core.annotation.Put;
@@ -54,6 +55,10 @@ public final class HttpSuccessImpl {
 
         @Get("/http/success/200")
         Mono<Response<Boolean>> get200(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
+
+        @Options("/http/success/200")
+        Mono<Response<Boolean>> options200(
+                @HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
         @Put("/http/success/200")
         Mono<Response<Void>> put200(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
@@ -136,14 +141,13 @@ public final class HttpSuccessImpl {
      * Return 200 status code if successful.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head200WithResponse(RequestOptions requestOptions, Context context) {
-        return head200WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head200WithResponse(RequestOptions requestOptions) {
+        return head200WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -195,14 +199,71 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return 200 success.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Boolean> get200WithResponse(RequestOptions requestOptions, Context context) {
-        return get200WithResponseAsync(requestOptions, context).block();
+    public Response<Boolean> get200WithResponse(RequestOptions requestOptions) {
+        return get200WithResponseAsync(requestOptions).block();
+    }
+
+    /**
+     * Options 200 success.
+     *
+     * <p><strong>Response Body Schema</strong>
+     *
+     * <pre>{@code
+     * boolean
+     * }</pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return simple boolean.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Boolean>> options200WithResponseAsync(RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.options200(this.client.getHost(), requestOptions, context));
+    }
+
+    /**
+     * Options 200 success.
+     *
+     * <p><strong>Response Body Schema</strong>
+     *
+     * <pre>{@code
+     * boolean
+     * }</pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param context The context to associate with this operation.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return simple boolean.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Boolean>> options200WithResponseAsync(RequestOptions requestOptions, Context context) {
+        return service.options200(this.client.getHost(), requestOptions, context);
+    }
+
+    /**
+     * Options 200 success.
+     *
+     * <p><strong>Response Body Schema</strong>
+     *
+     * <pre>{@code
+     * boolean
+     * }</pre>
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return simple boolean.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Boolean> options200WithResponse(RequestOptions requestOptions) {
+        return options200WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -254,14 +315,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put200WithResponse(RequestOptions requestOptions, Context context) {
-        return put200WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put200WithResponse(RequestOptions requestOptions) {
+        return put200WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -313,14 +373,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch200WithResponse(RequestOptions requestOptions, Context context) {
-        return patch200WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch200WithResponse(RequestOptions requestOptions) {
+        return patch200WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -372,14 +431,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post200WithResponse(RequestOptions requestOptions, Context context) {
-        return post200WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post200WithResponse(RequestOptions requestOptions) {
+        return post200WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -431,14 +489,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delete200WithResponse(RequestOptions requestOptions, Context context) {
-        return delete200WithResponseAsync(requestOptions, context).block();
+    public Response<Void> delete200WithResponse(RequestOptions requestOptions) {
+        return delete200WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -490,14 +547,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put201WithResponse(RequestOptions requestOptions, Context context) {
-        return put201WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put201WithResponse(RequestOptions requestOptions) {
+        return put201WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -549,14 +605,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post201WithResponse(RequestOptions requestOptions, Context context) {
-        return post201WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post201WithResponse(RequestOptions requestOptions) {
+        return post201WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -608,14 +663,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put202WithResponse(RequestOptions requestOptions, Context context) {
-        return put202WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put202WithResponse(RequestOptions requestOptions) {
+        return put202WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -667,14 +721,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch202WithResponse(RequestOptions requestOptions, Context context) {
-        return patch202WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch202WithResponse(RequestOptions requestOptions) {
+        return patch202WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -726,14 +779,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post202WithResponse(RequestOptions requestOptions, Context context) {
-        return post202WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post202WithResponse(RequestOptions requestOptions) {
+        return post202WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -785,14 +837,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delete202WithResponse(RequestOptions requestOptions, Context context) {
-        return delete202WithResponseAsync(requestOptions, context).block();
+    public Response<Void> delete202WithResponse(RequestOptions requestOptions) {
+        return delete202WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -826,14 +877,13 @@ public final class HttpSuccessImpl {
      * Return 204 status code if successful.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head204WithResponse(RequestOptions requestOptions, Context context) {
-        return head204WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head204WithResponse(RequestOptions requestOptions) {
+        return head204WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -885,14 +935,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put204WithResponse(RequestOptions requestOptions, Context context) {
-        return put204WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put204WithResponse(RequestOptions requestOptions) {
+        return put204WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -944,14 +993,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch204WithResponse(RequestOptions requestOptions, Context context) {
-        return patch204WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch204WithResponse(RequestOptions requestOptions) {
+        return patch204WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1003,14 +1051,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post204WithResponse(RequestOptions requestOptions, Context context) {
-        return post204WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post204WithResponse(RequestOptions requestOptions) {
+        return post204WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1062,14 +1109,13 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delete204WithResponse(RequestOptions requestOptions, Context context) {
-        return delete204WithResponseAsync(requestOptions, context).block();
+    public Response<Void> delete204WithResponse(RequestOptions requestOptions) {
+        return delete204WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1121,13 +1167,12 @@ public final class HttpSuccessImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Boolean> head404WithResponse(RequestOptions requestOptions, Context context) {
-        return head404WithResponseAsync(requestOptions, context).block();
+    public Response<Boolean> head404WithResponse(RequestOptions requestOptions) {
+        return head404WithResponseAsync(requestOptions).block();
     }
 }

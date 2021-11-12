@@ -9,6 +9,7 @@ import com.azure.core.annotation.Get;
 import com.azure.core.annotation.Head;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
+import com.azure.core.annotation.Options;
 import com.azure.core.annotation.Patch;
 import com.azure.core.annotation.Post;
 import com.azure.core.annotation.Put;
@@ -56,6 +57,10 @@ public final class HttpClientFailuresImpl {
         @Get("/http/failure/client/400")
         Mono<Response<Void>> get400(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
+        @Options("/http/failure/client/400")
+        Mono<Response<Void>> options400(
+                @HostParam("$host") String host, RequestOptions requestOptions, Context context);
+
         @Put("/http/failure/client/400")
         Mono<Response<Void>> put400(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
@@ -73,6 +78,10 @@ public final class HttpClientFailuresImpl {
 
         @Get("/http/failure/client/402")
         Mono<Response<Void>> get402(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
+
+        @Options("/http/failure/client/403")
+        Mono<Response<Void>> options403(
+                @HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
         @Get("/http/failure/client/403")
         Mono<Response<Void>> get403(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
@@ -97,6 +106,10 @@ public final class HttpClientFailuresImpl {
 
         @Get("/http/failure/client/411")
         Mono<Response<Void>> get411(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
+
+        @Options("/http/failure/client/412")
+        Mono<Response<Void>> options412(
+                @HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
         @Get("/http/failure/client/412")
         Mono<Response<Void>> get412(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
@@ -151,14 +164,13 @@ public final class HttpClientFailuresImpl {
      * Return 400 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head400WithResponse(RequestOptions requestOptions, Context context) {
-        return head400WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head400WithResponse(RequestOptions requestOptions) {
+        return head400WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -192,14 +204,53 @@ public final class HttpClientFailuresImpl {
      * Return 400 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get400WithResponse(RequestOptions requestOptions, Context context) {
-        return get400WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get400WithResponse(RequestOptions requestOptions) {
+        return get400WithResponseAsync(requestOptions).block();
+    }
+
+    /**
+     * Return 400 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> options400WithResponseAsync(RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.options400(this.client.getHost(), requestOptions, context));
+    }
+
+    /**
+     * Return 400 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param context The context to associate with this operation.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> options400WithResponseAsync(RequestOptions requestOptions, Context context) {
+        return service.options400(this.client.getHost(), requestOptions, context);
+    }
+
+    /**
+     * Return 400 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> options400WithResponse(RequestOptions requestOptions) {
+        return options400WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -251,14 +302,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put400WithResponse(RequestOptions requestOptions, Context context) {
-        return put400WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put400WithResponse(RequestOptions requestOptions) {
+        return put400WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -310,14 +360,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch400WithResponse(RequestOptions requestOptions, Context context) {
-        return patch400WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch400WithResponse(RequestOptions requestOptions) {
+        return patch400WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -369,14 +418,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post400WithResponse(RequestOptions requestOptions, Context context) {
-        return post400WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post400WithResponse(RequestOptions requestOptions) {
+        return post400WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -428,14 +476,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delete400WithResponse(RequestOptions requestOptions, Context context) {
-        return delete400WithResponseAsync(requestOptions, context).block();
+    public Response<Void> delete400WithResponse(RequestOptions requestOptions) {
+        return delete400WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -469,14 +516,13 @@ public final class HttpClientFailuresImpl {
      * Return 401 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head401WithResponse(RequestOptions requestOptions, Context context) {
-        return head401WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head401WithResponse(RequestOptions requestOptions) {
+        return head401WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -510,14 +556,53 @@ public final class HttpClientFailuresImpl {
      * Return 402 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get402WithResponse(RequestOptions requestOptions, Context context) {
-        return get402WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get402WithResponse(RequestOptions requestOptions) {
+        return get402WithResponseAsync(requestOptions).block();
+    }
+
+    /**
+     * Return 403 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> options403WithResponseAsync(RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.options403(this.client.getHost(), requestOptions, context));
+    }
+
+    /**
+     * Return 403 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param context The context to associate with this operation.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> options403WithResponseAsync(RequestOptions requestOptions, Context context) {
+        return service.options403(this.client.getHost(), requestOptions, context);
+    }
+
+    /**
+     * Return 403 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> options403WithResponse(RequestOptions requestOptions) {
+        return options403WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -551,14 +636,13 @@ public final class HttpClientFailuresImpl {
      * Return 403 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get403WithResponse(RequestOptions requestOptions, Context context) {
-        return get403WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get403WithResponse(RequestOptions requestOptions) {
+        return get403WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -610,14 +694,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put404WithResponse(RequestOptions requestOptions, Context context) {
-        return put404WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put404WithResponse(RequestOptions requestOptions) {
+        return put404WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -669,14 +752,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch405WithResponse(RequestOptions requestOptions, Context context) {
-        return patch405WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch405WithResponse(RequestOptions requestOptions) {
+        return patch405WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -728,14 +810,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post406WithResponse(RequestOptions requestOptions, Context context) {
-        return post406WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post406WithResponse(RequestOptions requestOptions) {
+        return post406WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -787,14 +868,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delete407WithResponse(RequestOptions requestOptions, Context context) {
-        return delete407WithResponseAsync(requestOptions, context).block();
+    public Response<Void> delete407WithResponse(RequestOptions requestOptions) {
+        return delete407WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -846,14 +926,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put409WithResponse(RequestOptions requestOptions, Context context) {
-        return put409WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put409WithResponse(RequestOptions requestOptions) {
+        return put409WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -887,14 +966,13 @@ public final class HttpClientFailuresImpl {
      * Return 410 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head410WithResponse(RequestOptions requestOptions, Context context) {
-        return head410WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head410WithResponse(RequestOptions requestOptions) {
+        return head410WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -928,14 +1006,53 @@ public final class HttpClientFailuresImpl {
      * Return 411 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get411WithResponse(RequestOptions requestOptions, Context context) {
-        return get411WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get411WithResponse(RequestOptions requestOptions) {
+        return get411WithResponseAsync(requestOptions).block();
+    }
+
+    /**
+     * Return 412 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> options412WithResponseAsync(RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.options412(this.client.getHost(), requestOptions, context));
+    }
+
+    /**
+     * Return 412 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param context The context to associate with this operation.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> options412WithResponseAsync(RequestOptions requestOptions, Context context) {
+        return service.options412(this.client.getHost(), requestOptions, context);
+    }
+
+    /**
+     * Return 412 status code - should be represented in the client as an error.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> options412WithResponse(RequestOptions requestOptions) {
+        return options412WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -969,14 +1086,13 @@ public final class HttpClientFailuresImpl {
      * Return 412 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get412WithResponse(RequestOptions requestOptions, Context context) {
-        return get412WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get412WithResponse(RequestOptions requestOptions) {
+        return get412WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1028,14 +1144,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put413WithResponse(RequestOptions requestOptions, Context context) {
-        return put413WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put413WithResponse(RequestOptions requestOptions) {
+        return put413WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1087,14 +1202,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch414WithResponse(RequestOptions requestOptions, Context context) {
-        return patch414WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch414WithResponse(RequestOptions requestOptions) {
+        return patch414WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1146,14 +1260,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post415WithResponse(RequestOptions requestOptions, Context context) {
-        return post415WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post415WithResponse(RequestOptions requestOptions) {
+        return post415WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1187,14 +1300,13 @@ public final class HttpClientFailuresImpl {
      * Return 416 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get416WithResponse(RequestOptions requestOptions, Context context) {
-        return get416WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get416WithResponse(RequestOptions requestOptions) {
+        return get416WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1246,14 +1358,13 @@ public final class HttpClientFailuresImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delete417WithResponse(RequestOptions requestOptions, Context context) {
-        return delete417WithResponseAsync(requestOptions, context).block();
+    public Response<Void> delete417WithResponse(RequestOptions requestOptions) {
+        return delete417WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -1287,13 +1398,12 @@ public final class HttpClientFailuresImpl {
      * Return 429 status code - should be represented in the client as an error.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head429WithResponse(RequestOptions requestOptions, Context context) {
-        return head429WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head429WithResponse(RequestOptions requestOptions) {
+        return head429WithResponseAsync(requestOptions).block();
     }
 }

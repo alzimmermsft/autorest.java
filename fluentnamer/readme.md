@@ -6,7 +6,7 @@ pass-thru:
   - subset-reducer
 
 use-extension:
-  "@autorest/modelerfour": "4.21.0"
+  "@autorest/modelerfour": "4.21.4"
 
 pipeline:
 
@@ -18,8 +18,6 @@ pipeline:
 
     flatten-models: false
     flatten-payloads: false
-
-    include-x-ms-examples-original-file: true
 
     additional-checks: true
     lenient-model-deduplication: false
@@ -52,6 +50,8 @@ pipeline:
         sTag: stag
         tagname: tagName
         tagvalue: tagValue
+
+include-x-ms-examples-original-file: true
 
 license-header: MICROSOFT_MIT_SMALL
 regenerate-pom: true

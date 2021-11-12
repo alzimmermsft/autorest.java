@@ -9,6 +9,7 @@ import com.azure.core.annotation.Get;
 import com.azure.core.annotation.Head;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
+import com.azure.core.annotation.Options;
 import com.azure.core.annotation.Patch;
 import com.azure.core.annotation.Post;
 import com.azure.core.annotation.Put;
@@ -84,6 +85,10 @@ public final class HttpRedirectsImpl {
         @Get("/http/redirect/307")
         Mono<Response<Void>> get307(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
+        @Options("/http/redirect/307")
+        Mono<Response<Void>> options307(
+                @HostParam("$host") String host, RequestOptions requestOptions, Context context);
+
         @Put("/http/redirect/307")
         Mono<Response<Void>> put307(@HostParam("$host") String host, RequestOptions requestOptions, Context context);
 
@@ -128,14 +133,13 @@ public final class HttpRedirectsImpl {
      * Return 300 status code and redirect to /http/success/200.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head300WithResponse(RequestOptions requestOptions, Context context) {
-        return head300WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head300WithResponse(RequestOptions requestOptions) {
+        return head300WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -193,14 +197,13 @@ public final class HttpRedirectsImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> get300WithResponse(RequestOptions requestOptions, Context context) {
-        return get300WithResponseAsync(requestOptions, context).block();
+    public Response<BinaryData> get300WithResponse(RequestOptions requestOptions) {
+        return get300WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -234,14 +237,13 @@ public final class HttpRedirectsImpl {
      * Return 301 status code and redirect to /http/success/200.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head301WithResponse(RequestOptions requestOptions, Context context) {
-        return head301WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head301WithResponse(RequestOptions requestOptions) {
+        return head301WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -275,14 +277,13 @@ public final class HttpRedirectsImpl {
      * Return 301 status code and redirect to /http/success/200.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get301WithResponse(RequestOptions requestOptions, Context context) {
-        return get301WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get301WithResponse(RequestOptions requestOptions) {
+        return get301WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -337,14 +338,13 @@ public final class HttpRedirectsImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put301WithResponse(RequestOptions requestOptions, Context context) {
-        return put301WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put301WithResponse(RequestOptions requestOptions) {
+        return put301WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -378,14 +378,13 @@ public final class HttpRedirectsImpl {
      * Return 302 status code and redirect to /http/success/200.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head302WithResponse(RequestOptions requestOptions, Context context) {
-        return head302WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head302WithResponse(RequestOptions requestOptions) {
+        return head302WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -419,14 +418,13 @@ public final class HttpRedirectsImpl {
      * Return 302 status code and redirect to /http/success/200.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get302WithResponse(RequestOptions requestOptions, Context context) {
-        return get302WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get302WithResponse(RequestOptions requestOptions) {
+        return get302WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -481,14 +479,13 @@ public final class HttpRedirectsImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch302WithResponse(RequestOptions requestOptions, Context context) {
-        return patch302WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch302WithResponse(RequestOptions requestOptions) {
+        return patch302WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -543,14 +540,13 @@ public final class HttpRedirectsImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post303WithResponse(RequestOptions requestOptions, Context context) {
-        return post303WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post303WithResponse(RequestOptions requestOptions) {
+        return post303WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -584,14 +580,13 @@ public final class HttpRedirectsImpl {
      * Redirect with 307, resulting in a 200 success.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> head307WithResponse(RequestOptions requestOptions, Context context) {
-        return head307WithResponseAsync(requestOptions, context).block();
+    public Response<Void> head307WithResponse(RequestOptions requestOptions) {
+        return head307WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -625,14 +620,53 @@ public final class HttpRedirectsImpl {
      * Redirect get with 307, resulting in a 200 success.
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> get307WithResponse(RequestOptions requestOptions, Context context) {
-        return get307WithResponseAsync(requestOptions, context).block();
+    public Response<Void> get307WithResponse(RequestOptions requestOptions) {
+        return get307WithResponseAsync(requestOptions).block();
+    }
+
+    /**
+     * options redirected with 307, resulting in a 200 after redirect.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> options307WithResponseAsync(RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.options307(this.client.getHost(), requestOptions, context));
+    }
+
+    /**
+     * options redirected with 307, resulting in a 200 after redirect.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param context The context to associate with this operation.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the completion.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> options307WithResponseAsync(RequestOptions requestOptions, Context context) {
+        return service.options307(this.client.getHost(), requestOptions, context);
+    }
+
+    /**
+     * options redirected with 307, resulting in a 200 after redirect.
+     *
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
+     *     false.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> options307WithResponse(RequestOptions requestOptions) {
+        return options307WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -684,14 +718,13 @@ public final class HttpRedirectsImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> put307WithResponse(RequestOptions requestOptions, Context context) {
-        return put307WithResponseAsync(requestOptions, context).block();
+    public Response<Void> put307WithResponse(RequestOptions requestOptions) {
+        return put307WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -743,14 +776,13 @@ public final class HttpRedirectsImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> patch307WithResponse(RequestOptions requestOptions, Context context) {
-        return patch307WithResponseAsync(requestOptions, context).block();
+    public Response<Void> patch307WithResponse(RequestOptions requestOptions) {
+        return patch307WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -802,14 +834,13 @@ public final class HttpRedirectsImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> post307WithResponse(RequestOptions requestOptions, Context context) {
-        return post307WithResponseAsync(requestOptions, context).block();
+    public Response<Void> post307WithResponse(RequestOptions requestOptions) {
+        return post307WithResponseAsync(requestOptions).block();
     }
 
     /**
@@ -861,13 +892,12 @@ public final class HttpRedirectsImpl {
      * }</pre>
      *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @param context The context to associate with this operation.
      * @throws HttpResponseException thrown if status code is 400 or above, if throwOnError in requestOptions is not
      *     false.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> delete307WithResponse(RequestOptions requestOptions, Context context) {
-        return delete307WithResponseAsync(requestOptions, context).block();
+    public Response<Void> delete307WithResponse(RequestOptions requestOptions) {
+        return delete307WithResponseAsync(requestOptions).block();
     }
 }
