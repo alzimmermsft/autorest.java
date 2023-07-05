@@ -249,7 +249,8 @@ public class Postprocessor extends NewPlugin {
         }
 
         // Start language client
-        try (EclipseLanguageClient languageClient = new EclipseLanguageClient(tempDirWithPrefix.toString())) {
+        try (EclipseLanguageClient languageClient = new EclipseLanguageClient(null, tempDirWithPrefix.toString(),
+                JavaSettings.getInstance().getEclipseLanguageServerStartupTimeoutMillis())) {
             languageClient.initialize();
             SymbolInformation classSymbol = languageClient.findWorkspaceSymbol(className)
                 .stream().filter(si -> si.getLocation().getUri().toString().endsWith(className + ".java"))

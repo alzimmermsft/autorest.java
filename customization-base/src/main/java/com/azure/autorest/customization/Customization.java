@@ -5,6 +5,7 @@ package com.azure.autorest.customization;
 
 import com.azure.autorest.customization.implementation.Utils;
 import com.azure.autorest.customization.implementation.ls.EclipseLanguageClient;
+import com.azure.autorest.extension.base.plugin.JavaSettings;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public abstract class Customization {
 
         // Start language client
         try (EclipseLanguageClient languageClient = new EclipseLanguageClient(pathToLanguageServerPlugin,
-            tempDirWithPrefix.toString())) {
+            tempDirWithPrefix.toString(), JavaSettings.getInstance().getEclipseLanguageServerStartupTimeoutMillis())) {
             languageClient.initialize();
             customize(new LibraryCustomization(editor, languageClient), logger);
             editor.removeFile("pom.xml");

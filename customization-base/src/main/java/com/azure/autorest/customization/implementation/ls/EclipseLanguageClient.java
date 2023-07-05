@@ -69,11 +69,7 @@ public class EclipseLanguageClient implements AutoCloseable {
     private final URI workspaceDir;
     private ServerCapabilities serverCapabilities;
 
-    public EclipseLanguageClient(String workspaceDir) {
-        this(null, workspaceDir);
-    }
-
-    public EclipseLanguageClient(String pathToLanguageServerPlugin, String workspaceDir) {
+    public EclipseLanguageClient(String pathToLanguageServerPlugin, String workspaceDir, int startupTimeoutMillis) {
         this.workspaceDir = new File(workspaceDir).toURI();
         try {
             serverSocket = new ServerSocket(0);
@@ -92,7 +88,7 @@ public class EclipseLanguageClient implements AutoCloseable {
             } else {
                 this.server = new EclipseLanguageServerFacade(pathToLanguageServerPlugin, port);
             }
-            thread.join(10 * 1000);
+            thread.join(startupTimeoutMillis);
             if (clientSocket.get() == null) {
                 throw new IllegalStateException("EclipseLanguageServer failed to start on CLIENT_PORT " + port + ". "
                         + "Make sure you have stopped any previous EclipseLanguageServer. "
