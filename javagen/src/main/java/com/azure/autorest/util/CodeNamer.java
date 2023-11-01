@@ -3,14 +3,13 @@
 
 package com.azure.autorest.util;
 
+import com.azure.core.util.CoreUtils;
 import org.atteo.evo.inflector.English;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -18,50 +17,58 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CodeNamer {
-    private static final Map<Character, String> BASIC_LATIC_CHARACTERS = new HashMap<Character, String>() {{
-        put((char) 32, "Space");
-        put((char) 33, "ExclamationMark");
-        put((char) 34, "QuotationMark");
-        put((char) 35, "NumberSign");
-        put((char) 36, "DollarSign");
-        put((char) 37, "PercentSign");
-        put((char) 38, "Ampersand");
-        put((char) 39, "Apostrophe");
-        put((char) 40, "LeftParenthesis");
-        put((char) 41, "RightParenthesis");
-        put((char) 42, "Asterisk");
-        put((char) 43, "PlusSign");
-        put((char) 44, "Comma");
-        put((char) 45, "HyphenMinus");
-        put((char) 46, "FullStop");
-        put((char) 47, "Slash");
-        put((char) 48, "Zero");
-        put((char) 49, "One");
-        put((char) 50, "Two");
-        put((char) 51, "Three");
-        put((char) 52, "Four");
-        put((char) 53, "Five");
-        put((char) 54, "Six");
-        put((char) 55, "Seven");
-        put((char) 56, "Eight");
-        put((char) 57, "Nine");
-        put((char) 58, "Colon");
-        put((char) 59, "Semicolon");
-        put((char) 60, "LessThanSign");
-        put((char) 61, "EqualSign");
-        put((char) 62, "GreaterThanSign");
-        put((char) 63, "QuestionMark");
-        put((char) 64, "AtSign");
-        put((char) 91, "LeftSquareBracket");
-        put((char) 92, "Backslash");
-        put((char) 93, "RightSquareBracket");
-        put((char) 94, "CircumflexAccent");
-        put((char) 96, "GraveAccent");
-        put((char) 123, "LeftCurlyBracket");
-        put((char) 124, "VerticalBar");
-        put((char) 125, "RightCurlyBracket");
-        put((char) 126, "Tilde");
-    }};
+    private static final String[] BASIC_LATIN_CHARACTERS = new String[128];
+    private static final String[] XML_COMMENT_ESCAPES = new String[128];
+
+    static {
+        BASIC_LATIN_CHARACTERS[32] = "Space";
+        BASIC_LATIN_CHARACTERS[33] = "ExclamationMark";
+        BASIC_LATIN_CHARACTERS[34] = "QuotationMark";
+        BASIC_LATIN_CHARACTERS[35] = "NumberSign";
+        BASIC_LATIN_CHARACTERS[36] = "DollarSign";
+        BASIC_LATIN_CHARACTERS[37] = "PercentSign";
+        BASIC_LATIN_CHARACTERS[38] = "Ampersand";
+        BASIC_LATIN_CHARACTERS[39] = "Apostrophe";
+        BASIC_LATIN_CHARACTERS[40] = "LeftParenthesis";
+        BASIC_LATIN_CHARACTERS[41] = "RightParenthesis";
+        BASIC_LATIN_CHARACTERS[42] = "Asterisk";
+        BASIC_LATIN_CHARACTERS[43] = "PlusSign";
+        BASIC_LATIN_CHARACTERS[44] = "Comma";
+        BASIC_LATIN_CHARACTERS[45] = "HyphenMinus";
+        BASIC_LATIN_CHARACTERS[46] = "FullStop";
+        BASIC_LATIN_CHARACTERS[47] = "Slash";
+        BASIC_LATIN_CHARACTERS[48] = "Zero";
+        BASIC_LATIN_CHARACTERS[49] = "One";
+        BASIC_LATIN_CHARACTERS[50] = "Two";
+        BASIC_LATIN_CHARACTERS[51] = "Three";
+        BASIC_LATIN_CHARACTERS[52] = "Four";
+        BASIC_LATIN_CHARACTERS[53] = "Five";
+        BASIC_LATIN_CHARACTERS[54] = "Six";
+        BASIC_LATIN_CHARACTERS[55] = "Seven";
+        BASIC_LATIN_CHARACTERS[56] = "Eight";
+        BASIC_LATIN_CHARACTERS[57] = "Nine";
+        BASIC_LATIN_CHARACTERS[58] = "Colon";
+        BASIC_LATIN_CHARACTERS[59] = "Semicolon";
+        BASIC_LATIN_CHARACTERS[60] = "LessThanSign";
+        BASIC_LATIN_CHARACTERS[61] = "EqualSign";
+        BASIC_LATIN_CHARACTERS[62] = "GreaterThanSign";
+        BASIC_LATIN_CHARACTERS[63] = "QuestionMark";
+        BASIC_LATIN_CHARACTERS[64] = "AtSign";
+        BASIC_LATIN_CHARACTERS[91] = "LeftSquareBracket";
+        BASIC_LATIN_CHARACTERS[92] = "Backslash";
+        BASIC_LATIN_CHARACTERS[93] = "RightSquareBracket";
+        BASIC_LATIN_CHARACTERS[94] = "CircumflexAccent";
+        BASIC_LATIN_CHARACTERS[96] = "GraveAccent";
+        BASIC_LATIN_CHARACTERS[123] = "LeftCurlyBracket";
+        BASIC_LATIN_CHARACTERS[124] = "VerticalBar";
+        BASIC_LATIN_CHARACTERS[125] = "RightCurlyBracket";
+        BASIC_LATIN_CHARACTERS[126] = "Tilde";
+
+        XML_COMMENT_ESCAPES['&'] = "&amp;";
+        XML_COMMENT_ESCAPES['<'] = "&lt;";
+        XML_COMMENT_ESCAPES['>'] = "&gt;";
+    }
+
     private static final Set<String> RESERVED_WORDS = new HashSet<>(Arrays.asList(
             "abstract", "assert", "boolean", "Boolean", "break",
             "byte", "Byte", "case", "catch", "char",
@@ -83,7 +90,6 @@ public class CodeNamer {
     private static NamerFactory factory = new DefaultNamerFactory();
 
     private static final Pattern CAMEL_CASE_SPLIT = Pattern.compile("[_\\- ]");
-    private static final Pattern ESCAPE_COMMENT = Pattern.compile(Pattern.quote("*/"));
     private static final Pattern MERGE_UNDERSCORES = Pattern.compile("_{2,}");
     private static final Pattern CHARACTERS_TO_REPLACE_WITH_UNDERSCORE = Pattern.compile("[\\\\/.+ -]+");
     private static final Pattern NEW_LINE = Pattern.compile("\r?\n");
@@ -140,15 +146,41 @@ public class CodeNamer {
                 .collect(Collectors.joining());
     }
 
+
     public static String escapeXmlComment(String comment) {
-        if (comment == null) {
-            return null;
+        if (CoreUtils.isNullOrEmpty(comment)) {
+            return comment;
         }
 
-        return comment
-                .replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;");
+        StringBuilder builder = null;
+
+        int last = 0;
+        for (int i = 0; i < comment.length(); i++) {
+            char c = comment.charAt(i);
+            String replacement = c < 128 ? XML_COMMENT_ESCAPES[c] : null;
+
+            if (replacement == null) {
+                continue;
+            }
+
+            if (builder == null) {
+                builder = new StringBuilder(comment.length() * 2);
+            }
+
+            if (last != i) {
+                builder.append(comment, last, i);
+            }
+
+            builder.append(replacement);
+            last = i + 1;
+        }
+
+        if (builder == null) {
+            return comment;
+        }
+
+        builder.append(comment, last, comment.length());
+        return builder.toString();
     }
 
     public static String escapeComment(String comment) {
@@ -156,7 +188,7 @@ public class CodeNamer {
             return null;
         }
 
-        return ESCAPE_COMMENT.matcher(comment).replaceAll("*&#47;");
+        return linearReplacement(comment, "*/", "*&#47;");
     }
 
     private static String formatCase(String name, boolean toLower) {
@@ -183,12 +215,11 @@ public class CodeNamer {
         String correctName = removeInvalidCharacters(name, allowedCharacters);
 
         // here we have only letters and digits or an empty String
-        if (correctName == null || correctName.isEmpty() ||
-                BASIC_LATIC_CHARACTERS.containsKey(correctName.charAt(0))) {
+        if (correctName == null || correctName.isEmpty() || basicLatinCharactersContain(correctName.charAt(0))) {
             StringBuilder sb = new StringBuilder();
             for (char symbol : name.toCharArray()) {
-                if (BASIC_LATIC_CHARACTERS.containsKey(symbol)) {
-                    sb.append(BASIC_LATIC_CHARACTERS.get(symbol));
+                if (basicLatinCharactersContain(symbol)) {
+                    sb.append(BASIC_LATIN_CHARACTERS[symbol]);
                 } else {
                     sb.append(symbol);
                 }
@@ -199,7 +230,7 @@ public class CodeNamer {
         // if it is still empty String, throw
         if (correctName == null || correctName.isEmpty()) {
             throw new IllegalArgumentException(
-                    String.format("Property name %s cannot be used as an Identifier, as it contains only invalid characters.", name));
+                "Property name " + name + " cannot be used as an Identifier, as it contains only invalid characters.");
         }
 
         return correctName;
@@ -262,11 +293,10 @@ public class CodeNamer {
                 result = sb.toString();
             } else {
                 // all char is '_', then transform some '_' to
-
-                if (result.startsWith("_") && BASIC_LATIC_CHARACTERS.containsKey(name.charAt(0))) {
-                    result = BASIC_LATIC_CHARACTERS.get(name.charAt(0)) + result.substring(1);
-                    if (result.endsWith("_") && BASIC_LATIC_CHARACTERS.containsKey(name.charAt(name.length() - 1))) {
-                        result = result.substring(0, result.length() - 1) + BASIC_LATIC_CHARACTERS.get(name.charAt(name.length() - 1));
+                if (result.startsWith("_") && basicLatinCharactersContain(name.charAt(0))) {
+                    result = BASIC_LATIN_CHARACTERS[name.charAt(0)] + result.substring(1);
+                    if (result.endsWith("_") && basicLatinCharactersContain(name.charAt(name.length() - 1))) {
+                        result = result.substring(0, result.length() - 1) + BASIC_LATIN_CHARACTERS[name.charAt(name.length() - 1)];
                     }
                 }
             }
@@ -343,14 +373,14 @@ public class CodeNamer {
         return name;
     }
 
-    private static String removeInvalidCharacters(String name, char... allowerCharacters) {
+    private static String removeInvalidCharacters(String name, char... allowedCharacters) {
         if (name == null || name.isEmpty()) {
             return name;
         }
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(name.length());
         List<Character> allowed = new ArrayList<>();
-        for (Character c : allowerCharacters) {
+        for (Character c : allowedCharacters) {
             allowed.add(c);
         }
         for (Character c : name.toCharArray()) {
@@ -361,5 +391,51 @@ public class CodeNamer {
             }
         }
         return builder.toString();
+    }
+
+    private static boolean basicLatinCharactersContain(char c) {
+        if (c >= 128) {
+            return false;
+        }
+
+        return BASIC_LATIN_CHARACTERS[c] != null;
+    }
+
+    /**
+     * Utility method that replaces all occurrences of a string with another string, without creating intermediate
+     * Pattern.
+     *
+     * @param str The string to replace in.
+     * @param toReplace The string to replace.
+     * @param replacement The string to replace with.
+     * @return The string with all occurrences of {@code toReplace} replaced with {@code replacement}.
+     */
+    public static String linearReplacement(String str, String toReplace, String replacement) {
+        int replaceIndex = 0;
+        int lastReplaceIndex = 0;
+        StringBuilder replacer = null;
+
+        while ((replaceIndex = str.indexOf(toReplace, replaceIndex)) != -1) {
+            if (replacer == null) {
+                // Create a StringBuilder large enough to perform 5 replacements without resizing.
+                replacer = new StringBuilder(str.length() + Math.max(0, (replacement.length() - toReplace.length()) * 5));
+            }
+
+            replacer.append(str, 0, replaceIndex);
+            replacer.append(replacement);
+
+            replaceIndex += toReplace.length();
+            lastReplaceIndex = replaceIndex;
+            if (replaceIndex >= str.length()) {
+                break;
+            }
+        }
+
+        if (replacer == null) {
+            return str;
+        }
+
+        replacer.append(str, lastReplaceIndex, str.length());
+        return replacer.toString();
     }
 }
