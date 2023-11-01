@@ -3,6 +3,7 @@
 
 package com.azure.autorest.extension.base.jsonrpc;
 
+import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,7 @@ class PeekingBinaryReader implements Closeable {
 
     PeekingBinaryReader(InputStream input) {
         this.lastByte = null;
-        this.input = input;
+        this.input = new BufferedInputStream(input, 4096);
     }
 
     int readByte() throws IOException {
@@ -39,13 +40,11 @@ class PeekingBinaryReader implements Closeable {
     byte[] readBytes(int count) throws IOException {
         byte[] buffer = new byte[count];
         int read = 0;
-        if (count > 0 && lastByte != null)
-        {
+        if (count > 0 && lastByte != null) {
             buffer[read++] = (byte) (int) lastByte;
             lastByte = null;
         }
-        while (read < count)
-        {
+        while (read < count) {
             read += input.read(buffer, read, count - read);
         }
         return buffer;

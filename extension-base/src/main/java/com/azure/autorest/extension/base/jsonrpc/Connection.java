@@ -179,12 +179,15 @@ public class Connection {
                 }
 
                 // We're looking at headers
-                Map<String, String> headers = new HashMap<>();
+                // All we care about is the Content-Length header.
+                String contentLengthHeader = null;
                 String line = reader.readAsciiLine();
 //                System.err.println("Incoming line: " + line);
                 while (line != null && !line.isEmpty()) {
                     String[] bits = line.split(":", 2);
-                    headers.put(bits[0].trim(), bits[1].trim());
+                    if ("Content-Length".equals(bits[0].trim())) {
+                        contentLengthHeader = bits[1].trim();
+                    }
                     line = reader.readAsciiLine();
 //                    System.err.println("Incoming line: " + line);
                 }
@@ -192,9 +195,8 @@ public class Connection {
                 ch = reader.peekByte();
                 // the next character had better be a { or [
                 if ('{' == ch || '[' == ch) {
-                    if (headers.containsKey("Content-Length")) {
-                        String value = headers.get("Content-Length");
-                        int contentLength = Integer.parseInt(value);
+                    if (contentLengthHeader != null) {
+                        int contentLength = Integer.parseInt(contentLengthHeader);
                         // don't wait for this to finish!
                         process(readJson(contentLength));
                         continue;

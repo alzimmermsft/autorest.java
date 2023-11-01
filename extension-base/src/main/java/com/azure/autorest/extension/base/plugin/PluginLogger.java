@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 public final class PluginLogger extends MarkerIgnoringBase {
     private final NewPlugin plugin;
     private final List<String> keys;
+    private final String name;
     private final boolean isTracingEnabled;
     private final boolean isDebugEnabled;
 
@@ -40,8 +41,10 @@ public final class PluginLogger extends MarkerIgnoringBase {
         this.plugin = plugin;
         if (labels == null || labels.length == 0) {
             keys = Collections.emptyList();
+            name = "";
         } else {
             keys = Arrays.asList(labels);
+            name = String.join("/", keys);
         }
         this.isTracingEnabled = plugin.getBooleanValue("verbose", false);
         this.isDebugEnabled = plugin.getBooleanValue("debug", false)
@@ -53,8 +56,8 @@ public final class PluginLogger extends MarkerIgnoringBase {
      */
     @Override
     public String getName() {
-        return String.join("/", keys);
-    }
+        return name;
+}
 
     /**
      * {@inheritDoc}

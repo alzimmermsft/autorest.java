@@ -6,7 +6,6 @@ package com.azure.autorest.extension.base.jsonrpc;
 import com.fasterxml.jackson.databind.JavaType;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 public class CallerResponse<T> extends CompletableFuture<T> {
     public int id;
@@ -21,13 +20,16 @@ public class CallerResponse<T> extends CompletableFuture<T> {
     @Override
     public boolean complete(Object result) {
         T value;
-        Function<Object, Boolean> trueLikeValue = obj -> obj == null ? null : (!obj.equals(0) && !obj.equals(false) && !obj.equals(""));
         if (type.isTypeOrSubTypeOf(Boolean.class)) {
-            value = (T) (trueLikeValue.apply(result));
+            value = (T) trueLikeValue(result);
         } else {
             value = (T) result;
         }
         return super.complete(value);
+    }
+
+    private static Boolean trueLikeValue(Object result) {
+        return result == null ? null : (!result.equals(0) && !result.equals(false) && !result.equals(""));
     }
 
     @Override
