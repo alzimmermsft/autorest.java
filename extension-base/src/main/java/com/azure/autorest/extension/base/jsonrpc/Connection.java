@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -313,28 +312,17 @@ public class Connection {
         }
     }
 
-    private final Semaphore streamReady = new Semaphore(1);
-
     private void send(String text) {
+        byte[] body = text.getBytes(StandardCharsets.UTF_8);
+        byte[] header = ("Content-Length: " + body.length + "\r\n\r\n").getBytes(StandardCharsets.US_ASCII);
+        byte[] buffer = new byte[header.length + body.length];
+        System.arraycopy(header, 0, buffer, 0, header.length);
+        System.arraycopy(body, 0, buffer, header.length, body.length);
         try {
-            synchronized (streamReady) {
-                streamReady.acquire();
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        byte[] buffer = text.getBytes(StandardCharsets.UTF_8);
-        try {
-            write(("Content-Length: " + buffer.length + "\r\n\r\n").getBytes(StandardCharsets.US_ASCII));
             write(buffer);
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-
-        synchronized (streamReady) {
-            streamReady.release();
         }
     }
 

@@ -102,9 +102,8 @@ public class Main {
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
         // write
-        Postprocessor.writeToFiles(javaPackage.getJavaFiles().stream()
-            .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())), fluentPlugin,
-            fluentPlugin.getLogger());
+        new Postprocessor(fluentPlugin).postProcess(javaPackage.getJavaFiles().stream()
+            .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
     }
 
     private static void handleDPG(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration, String outputDir) {

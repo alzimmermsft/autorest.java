@@ -19,16 +19,23 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.inspector.TrustedTagInspector;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class NewPlugin {
     protected final ObjectMapper jsonMapper;
@@ -37,6 +44,7 @@ public abstract class NewPlugin {
     protected final Connection connection;
     protected final String pluginName;
     protected final String sessionId;
+    private Optional<String> rootFolder;
 
     public String readFile(String fileName) {
         return connection.request(jsonMapper.constructType(String.class), "ReadFile", sessionId, fileName);
@@ -91,10 +99,6 @@ public abstract class NewPlugin {
         return connection.request(jsonMapper.getTypeFactory().constructCollectionLikeType(List.class, String.class), "ListInputs", sessionId, null);
     }
 
-    public List<String> listInputs(String artifactType) {
-        return connection.request(jsonMapper.getTypeFactory().constructCollectionLikeType(List.class, String.class), "ListInputs", sessionId, artifactType);
-    }
-
     public void message(Message message) {
         connection.notify("Message", sessionId, message);
     }
@@ -112,33 +116,23 @@ public abstract class NewPlugin {
     }
 
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
-        connection.notify("WriteFile", sessionId, fileName, content, sourceMap);
-    }
-
-    public void writeFile(String fileName, String content, List<Object> sourceMap, String artifactType) {
-        Message message = new Message();
-        message.setChannel(MessageChannel.FILE);
-        message.setDetails(new HashMap<String, Object>() {{
-            put("content", content);
-            put("type", artifactType);
-            put("uri", fileName);
-            put("sourceMap", sourceMap);
-        }});
-        message.setText(content);
-        message.setKey(Arrays.asList(artifactType, fileName));
-        connection.notify("Message", sessionId, message);
-    }
-
-    public void protectFiles(String path) {
-        List<String> items = listInputs(path);
-        if (items != null && items.size() > 0) {
-            for (String item : items) {
-                String content = readFile(item);
-                writeFile(item, content, null, "preserved-files");
-            }
+        if (rootFolder == null) {
+            rootFolder = Optional.ofNullable(getBaseDirectory(this));
         }
-        String contentSingle = readFile(path);
-        writeFile(path, contentSingle, null, "preserved-files");
+
+        String output = JavaSettings.getInstance().getAutorestSettings().getOutputFolder();
+        Path outputFolder = rootFolder.map(s -> Paths.get(s, output)).orElseGet(() -> Paths.get(output));
+        Path outputFile = outputFolder.resolve(fileName);
+
+        try {
+            if (Files.notExists(outputFile.getParent())) {
+                Files.createDirectories(outputFile.getParent());
+            }
+
+            Files.writeString(outputFile, content);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
     }
 
     public String getConfigurationFile(String fileName) {
@@ -227,5 +221,22 @@ public abstract class NewPlugin {
 
         t.printStackTrace(printWriter);
         return stringWriter.toString();
+    }
+
+    private String getReadme(NewPlugin plugin) {
+        List<String> configurationFiles = plugin.getValue(List.class, "configurationFiles");
+        return configurationFiles == null || configurationFiles.isEmpty()
+            ? JavaSettings.getInstance().getAutorestSettings().getOutputFolder()
+            : configurationFiles.stream().filter(key -> !key.contains(".autorest")).findFirst().orElse(null);
+    }
+
+    private String getBaseDirectory(NewPlugin plugin) {
+        String readme = getReadme(plugin);
+        if (readme != null) {
+            return new File(URI.create(readme).getPath()).getParent();
+        }
+
+        // TODO: get autorest running directory
+        return null;
     }
 }

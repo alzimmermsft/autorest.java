@@ -255,11 +255,6 @@ public class Preprocessor extends NewPlugin {
     }
 
     @Override
-    public List<String> listInputs(String artifactType) {
-        return wrappedPlugin.listInputs(artifactType);
-    }
-
-    @Override
     public void message(Message message) {
         wrappedPlugin.message(message);
     }
@@ -272,16 +267,6 @@ public class Preprocessor extends NewPlugin {
     @Override
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
         wrappedPlugin.writeFile(fileName, content, sourceMap);
-    }
-
-    @Override
-    public void writeFile(String fileName, String content, List<Object> sourceMap, String artifactType) {
-        wrappedPlugin.writeFile(fileName, content, sourceMap, artifactType);
-    }
-
-    @Override
-    public void protectFiles(String path) {
-        wrappedPlugin.protectFiles(path);
     }
 
     @Override

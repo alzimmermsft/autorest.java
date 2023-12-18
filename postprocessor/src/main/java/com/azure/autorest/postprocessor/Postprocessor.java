@@ -43,7 +43,7 @@ public class Postprocessor {
 
         if (className == null) {
             try {
-                writeToFiles(fileContents, plugin, logger);
+                writeToFiles(fileContents);
             } catch (Exception e) {
                 logger.error("Failed to complete postprocessing.", e);
                 throw new RuntimeException("Failed to complete postprocessing.", e);
@@ -103,14 +103,14 @@ public class Postprocessor {
             }
 
             //Step 2: Print to files
-            writeToFiles(fileContents, plugin, logger);
+            writeToFiles(fileContents);
         } catch (Exception e) {
             logger.error("Failed to complete postprocessing.", e);
             throw new RuntimeException("Failed to complete postprocessing.", e);
         }
     }
 
-    public static void writeToFiles(Map<String, String> javaFiles, NewPlugin plugin, Logger logger) {
+    private void writeToFiles(Map<String, String> javaFiles) {
         JavaSettings settings = JavaSettings.getInstance();
         if (settings.isHandlePartialUpdate()) {
             handlePartialUpdate(javaFiles, plugin, logger);
