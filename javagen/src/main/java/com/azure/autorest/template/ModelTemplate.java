@@ -217,7 +217,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                         // being added create the containing map.
                         // TODO (alzimmer): Should we use LinkedHashMap to retain insertion order?
                         methodBlock.ifBlock(property.getName() + " == null",
-                            ifBlock -> ifBlock.line("%s = new HashMap<>();", property.getName()));
+                            ifBlock -> ifBlock.line(property.getName() + " = new HashMap<>();"));
 
                         methodBlock.line("%s.put(%s, value);", property.getName(),
                             model.getNeedsFlatten() ? "KEY_ESCAPER.matcher(key).replaceAll(\".\")" : "key");

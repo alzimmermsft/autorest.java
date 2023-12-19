@@ -3,7 +3,15 @@
 
 package com.azure.autorest.util;
 
+/**
+ * Factory for creating a ModelNamer.
+ */
 public interface NamerFactory {
 
+    /**
+     * Gets a ModelNamer.
+     *
+     * @return A ModelNamer.
+     */
     ModelNamer getModelNamer();
 }

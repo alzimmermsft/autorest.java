@@ -3,6 +3,9 @@
 
 package com.azure.autorest.util;
 
+/**
+ * The default implementation of the NamerFactory interface.
+ */
 public class DefaultNamerFactory implements NamerFactory {
 
     private static final ModelNamer MODEL_NAMER = new ModelNamer();

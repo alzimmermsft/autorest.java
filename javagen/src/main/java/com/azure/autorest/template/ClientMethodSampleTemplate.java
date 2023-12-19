@@ -64,14 +64,14 @@ public class ClientMethodSampleTemplate implements IJavaTemplate<ClientMethodExa
 
                 // codesnippet begin
                 if (proxyMethodExample.getCodeSnippetIdentifier() != null) {
-                    methodBlock.line(String.format("// BEGIN:%s", proxyMethodExample.getCodeSnippetIdentifier()));
+                    methodBlock.line("// BEGIN:" + proxyMethodExample.getCodeSnippetIdentifier());
                 }
 
                 clientMethodExampleWriter.writeMethodInvocation(methodBlock);
 
                 // codesnippet end
                 if (proxyMethodExample.getCodeSnippetIdentifier() != null) {
-                    methodBlock.line(String.format("// END:%s", proxyMethodExample.getCodeSnippetIdentifier()));
+                    methodBlock.line("// END:" + proxyMethodExample.getCodeSnippetIdentifier());
                 }
             });
             if (helperFeatures.contains(ExampleHelperFeature.MapOfMethod)) {

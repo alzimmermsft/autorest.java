@@ -80,7 +80,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
         for (String expressionToCheck : expressionsToCheckSet) {
             // TODO (alzimmer): Need to discuss if this can be changed to the more appropriate NullPointerException.
-            String exceptionExpression = String.format("new IllegalArgumentException(\"Parameter %s is required and cannot be null.\")", expressionToCheck);
+            String exceptionExpression =
+                "new IllegalArgumentException(\"Parameter " + expressionToCheck + " is required and cannot be null.\")";
 
             // TODO (alzimmer): Determine if the assumption being made here are always true.
             // 1. Assumes that the expression is nullable.
@@ -89,12 +90,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             JavaIfBlock nullCheck = function.ifBlock(expressionToCheck + " == null", ifBlock -> {
                 if (JavaSettings.getInstance().isSyncStackEnabled()) {
                     if (settings.isUseClientLogger()) {
-                        ifBlock.line("throw LOGGER.logExceptionAsError(%s);", exceptionExpression);
+                        ifBlock.line("throw LOGGER.logExceptionAsError(" + exceptionExpression + ");");
                     } else {
-                        ifBlock.line("throw %s;", exceptionExpression);
+                        ifBlock.line("throw " + exceptionExpression + ";");
                     }
                 } else {
-                    ifBlock.methodReturn(String.format("Mono.error(%s)", exceptionExpression));
+                    ifBlock.methodReturn("Mono.error(" + exceptionExpression + ")");
                 }
             });
 
@@ -131,8 +132,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
             IType parameterClientType = parameter.getClientType();
             String defaultValue = parameterClientType.defaultValueExpression(parameter.getDefaultValue());
-            function.line("final %s %s = %s;", parameterClientType, parameter.getName(),
-                defaultValue == null ? "null" : defaultValue);
+            function.line("final " + parameterClientType + " " + parameter.getName() + " = " + defaultValue + ";");
         }
     }
 
@@ -202,8 +202,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 && !alwaysNull
                 && ((addOptional && optionalOmitted) || (addConstant && includeConstant))) {
                 String defaultValue = parameterClientType.defaultValueExpression(parameter.getDefaultValue());
-                function.line("final %s %s = %s;", parameterClientType, parameter.getParameterReference(),
-                    defaultValue == null ? "null" : defaultValue);
+                function.line("final " + parameterClientType + " " + parameter.getParameterReference() + " = "
+                    + defaultValue + ";");
             }
         }
     }
@@ -224,7 +224,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 if (outParameter.isRequired() && outParameter.getClientType() instanceof ClassType) {
                     function.line("%1$s %2$s = new %1$s();", outParameter.getClientType(), outParameter.getName());
                 } else {
-                    function.line("%1$s %2$s = null;", outParameter.getClientType(), outParameter.getName());
+                    function.line(outParameter.getClientType() + " " + outParameter.getName() + " = null;");
                 }
 
                 // TODO (alzimmer): Should this break here? What if there are subsequent method transformation details?
@@ -255,10 +255,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 ? transformation.getOutParameter().getName() + "Internal"
                 : transformation.getOutParameter().getName();
             if (conditionalAssignment) {
-                function.line("%s %s = null;",
-                    transformation.getOutParameter().getClientType(),
-                    outParameterName);
-                function.line("if (%s) {", nullCheck);
+                function.line(transformation.getOutParameter().getClientType() + " " + outParameterName + " = null;");
+                function.line("if (" + nullCheck + ") {");
                 function.increaseIndent();
             }
 
@@ -293,7 +291,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 if (mapping.getOutputParameterPropertyName() != null) {
                     getMapping = String.format(".%s(%s)", CodeNamer.getModelNamer().modelPropertySetterName(mapping.getOutputParameterPropertyName()), inputPath);
                 } else {
-                    getMapping = String.format(" = %s", inputPath);
+                    getMapping = " = " + inputPath;
                 }
 
                 function.line("%s%s%s;",
