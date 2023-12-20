@@ -46,6 +46,11 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
     private String aggregate;
 
     /**
+     * customized property
+     */
+    private String testProperty;
+
+    /**
      * Creates an instance of PartialUpdateModel class.
      *
      * @param booleanProperty the booleanProperty value to set.
@@ -100,6 +105,18 @@ public final class PartialUpdateModel implements JsonSerializable<PartialUpdateM
     @Generated
     public String getAggregate() {
         return this.aggregate;
+    }
+
+    public void setAggregate(String aggregate) {
+        this.aggregate = aggregate;
+    }
+
+    public String getTestProperty() {
+        return testProperty;
+    }
+
+    public void setTestProperty(String testProperty) {
+        this.testProperty = testProperty;
     }
 
     @Override

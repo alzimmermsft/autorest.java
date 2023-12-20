@@ -49,7 +49,12 @@ public class SchemaMapper implements IMapper<Schema, IType> {
             return schemaType;
         }
 
-        return PARSED.computeIfAbsent(value, this::createSchemaType);
+        // Use a separate value to track the parsed type to avoid infinite recursion as createSchemaType may call
+        // this method again.
+        IType parsed = createSchemaType(value);
+        PARSED.put(value, parsed);
+
+        return parsed;
     }
 
     private IType createSchemaType(Schema value) {

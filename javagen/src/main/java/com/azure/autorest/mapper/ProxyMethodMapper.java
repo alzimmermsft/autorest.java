@@ -299,14 +299,17 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     }
 
     private void addSyncProxyMethods(List<ProxyMethod> proxyMethods) {
+        List<ProxyMethod> syncProxyMethods = new ArrayList<>();
         for (ProxyMethod asyncProxyMethod : proxyMethods) {
             if (asyncProxyMethod.getParameters()
                     .stream()
                     .anyMatch(param -> param.getClientType() == GenericType.FLUX_BYTE_BUFFER)) {
                 continue;
             }
-            proxyMethods.add(asyncProxyMethod.toSync());
+            syncProxyMethods.add(asyncProxyMethod.toSync());
         }
+
+        proxyMethods.addAll(syncProxyMethods);
     }
 
     protected boolean operationGroupNotNull(Operation operation, JavaSettings settings) {

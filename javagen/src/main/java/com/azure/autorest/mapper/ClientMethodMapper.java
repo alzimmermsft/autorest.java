@@ -139,7 +139,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return clientMethods;
         }
 
-        return PARSED.computeIfAbsent(cacheKey, key -> createClientMethods(operation, isProtocolMethod));
+        // Use a separate value to track the parsed type to avoid infinite recursion as createClientMethods may call
+        // this method again.
+        clientMethods = createClientMethods(operation, isProtocolMethod);
+        PARSED.put(cacheKey, clientMethods);
+
+        return clientMethods;
     }
 
     /**

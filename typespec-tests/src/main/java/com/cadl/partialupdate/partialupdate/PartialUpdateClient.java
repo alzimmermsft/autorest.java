@@ -80,4 +80,11 @@ public final class PartialUpdateClient {
         RequestOptions requestOptions = new RequestOptions();
         return readWithResponse(requestOptions).getValue().toObject(PartialUpdateModel.class);
     }
+
+    /**
+     * customized method to test partial-update
+     */
+    public void testMethod() {
+        System.out.println("testMethod");
+    }
 }

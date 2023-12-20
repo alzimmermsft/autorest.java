@@ -6,7 +6,7 @@
 #
 # Before running this script the 'tsp' profile must be built, 'mvn install -P local,tsp'.
 param (
-  [int] $Parallelization = [Environment]::ProcessorCount - 1
+  [int] $Parallelization = 1 #[Environment]::ProcessorCount - 1
 )
 
 $ExitCode = 0
@@ -102,10 +102,14 @@ if (Test-Path ./tsp-output) {
 }
 
 # run other local tests except partial update
-$job = (Get-Item ./tsp/* -Filter "*.tsp" -Exclude "*partialupdate*") | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
+if ($Parallelization -gt 1) {
+  $job = (Get-Item ./tsp/* -Filter "*.tsp" -Exclude "*partialupdate*") | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
-$job | Wait-Job -Timeout 600
-$job | Receive-Job
+  $job | Wait-Job -Timeout 600
+  $job | Receive-Job
+} else {
+  Get-Item ./tsp/* -Filter "*.tsp" -Exclude "*partialupdate*" | ForEach-Object $generateScript
+}
 
 # partial update test
 npx tsp compile ./tsp/partialupdate.tsp --option="@azure-tools/typespec-java.emitter-output-dir={project-root}/existingcode"
@@ -115,10 +119,14 @@ Remove-Item ./existingcode -Recurse -Force
 # run cadl ranch tests sources
 Copy-Item -Path node_modules/@azure-tools/cadl-ranch-specs/http -Destination ./ -Recurse -Force
 
-$job = (Get-ChildItem ./http -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
+if ($Parallelization -gt 1) {
+  $job = (Get-ChildItem ./http -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
-$job | Wait-Job -Timeout 600
-$job | Receive-Job
+  $job | Wait-Job -Timeout 600
+  $job | Receive-Job
+} else {
+  Get-ChildItem ./http -Include "main.tsp","old.tsp" -File -Recurse | ForEach-Object $generateScript
+}
 
 Remove-Item ./http -Recurse -Force
 

@@ -14,25 +14,27 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.FluxUtil;
 import com.cadl.partialupdate.implementation.PartialUpdateClientImpl;
 import com.cadl.partialupdate.models.PartialUpdateModel;
+import reactor.core.publisher.Mono;
 
 /**
- * Initializes a new instance of the synchronous PartialUpdateClient type.
+ * Initializes a new instance of the asynchronous PartialUpdateClient type.
  */
-@ServiceClient(builder = PartialUpdateClientBuilder.class)
-public final class PartialUpdateClient {
+@ServiceClient(builder = PartialUpdateClientBuilder.class, isAsync = true)
+public final class PartialUpdateAsyncClient {
 
     @Generated
     private final PartialUpdateClientImpl serviceClient;
 
     /**
-     * Initializes an instance of PartialUpdateClient class.
+     * Initializes an instance of PartialUpdateAsyncClient class.
      *
      * @param serviceClient the service client implementation.
      */
     @Generated
-    PartialUpdateClient(PartialUpdateClientImpl serviceClient) {
+    PartialUpdateAsyncClient(PartialUpdateClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
@@ -55,12 +57,12 @@ public final class PartialUpdateClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> readWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.readWithResponse(requestOptions);
+    public Mono<Response<BinaryData>> readWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.readWithResponseAsync(requestOptions);
     }
 
     /**
@@ -71,13 +73,14 @@ public final class PartialUpdateClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PartialUpdateModel read() {
+    public Mono<PartialUpdateModel> read() {
         // Generated convenience method for readWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return readWithResponse(requestOptions).getValue().toObject(PartialUpdateModel.class);
+        return readWithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(PartialUpdateModel.class));
     }
 }
