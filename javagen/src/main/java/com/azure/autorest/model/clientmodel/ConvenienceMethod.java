@@ -26,10 +26,16 @@ public class ConvenienceMethod {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof ConvenienceMethod)) {
+            return false;
+        }
+
         ConvenienceMethod that = (ConvenienceMethod) o;
-        return protocolMethod.equals(that.protocolMethod);
+        return Objects.equals(protocolMethod, that.protocolMethod);
     }
 
     @Override

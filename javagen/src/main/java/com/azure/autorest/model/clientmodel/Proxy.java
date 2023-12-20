@@ -16,19 +16,19 @@ public class Proxy {
     /**
      * Get the name of the REST API interface.
      */
-    private String name;
+    private final String name;
     /**
      * Get the name of the method group.
      */
-    private String clientTypeName;
+    private final String clientTypeName;
     /**
      * Get the base URL that will be used for each REST API method.
      */
-    private String baseURL;
+    private final String baseURL;
     /**
      * Get the methods of this REST API.
      */
-    private List<ProxyMethod> methods;
+    private final List<ProxyMethod> methods;
 
     /**
      * Create a new Proxy using the provided properties.
@@ -120,10 +120,7 @@ public class Proxy {
         }
 
         public Proxy build() {
-            return new Proxy(name,
-                    clientTypeName,
-                    baseURL,
-                    methods);
+            return new Proxy(name, clientTypeName, baseURL, methods);
         }
     }
 }

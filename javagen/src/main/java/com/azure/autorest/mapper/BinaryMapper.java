@@ -12,22 +12,22 @@ import com.azure.autorest.model.clientmodel.IType;
  */
 public class BinaryMapper implements IMapper<BinarySchema, IType> {
 
-  private static final BinaryMapper INSTANCE = new BinaryMapper();
+    private static final BinaryMapper INSTANCE = new BinaryMapper();
 
-  /**
-   * Gets the global {@link BinaryMapper} instance.
-   *
-   * @return The global {@link BinaryMapper} instance.
-   */
-  public static BinaryMapper getInstance() {
-    return INSTANCE;
-  }
-
-  @Override
-  public IType map(BinarySchema binarySchema) {
-    if (binarySchema == null) {
-      return null;
+    /**
+     * Gets the global {@link BinaryMapper} instance.
+     *
+     * @return The global {@link BinaryMapper} instance.
+     */
+    public static BinaryMapper getInstance() {
+        return INSTANCE;
     }
-    return GenericType.FLUX_BYTE_BUFFER;
-  }
+
+    @Override
+    public IType map(BinarySchema binarySchema) {
+        if (binarySchema == null) {
+            return null;
+        }
+        return GenericType.FLUX_BYTE_BUFFER;
+    }
 }

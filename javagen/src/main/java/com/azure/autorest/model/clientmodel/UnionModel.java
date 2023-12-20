@@ -35,11 +35,8 @@ public class UnionModel {
     private final List<ClientModelProperty> properties;
     private final ImplementationDetails implementationDetails;
 
-    protected UnionModel(
-            String packageKeyword, String name, List<String> imports, String description,
-            String parentModelName,
-            List<ClientModelProperty> properties,
-            ImplementationDetails implementationDetails) {
+    protected UnionModel(String packageKeyword, String name, List<String> imports, String description,
+        String parentModelName, List<ClientModelProperty> properties, ImplementationDetails implementationDetails) {
         this.packageName = packageKeyword;
         this.name = name;
         this.imports = imports;
@@ -50,7 +47,7 @@ public class UnionModel {
     }
 
     public final String getFullName() {
-        return String.format("%1$s.%2$s", getPackage(), getName());
+        return packageName + "." + name;
     }
 
     public void addImportsTo(Set<String> imports) {
@@ -171,13 +168,8 @@ public class UnionModel {
         }
 
         public UnionModel build() {
-            return new UnionModel(packageName,
-                    name,
-                    imports,
-                    description,
-                    parentModelName,
-                    properties,
-                    implementationDetails);
+            return new UnionModel(packageName, name, imports, description, parentModelName, properties,
+                implementationDetails);
         }
     }
 }

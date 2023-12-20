@@ -25,8 +25,7 @@ import com.azure.autorest.model.clientmodel.PrimitiveType;
 import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -174,11 +173,11 @@ public class SchemaUtil {
      * @return whether response of the operation contains headers
      */
     public static boolean responseContainsHeaderSchemas(Operation operation, JavaSettings settings) {
-        return operation.getResponses().stream()
-            .filter(r -> r.getProtocol() != null && r.getProtocol().getHttp() != null && r.getProtocol().getHttp().getHeaders() != null)
-            .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
-            .anyMatch(Objects::nonNull)
-            && operationIsNotFluentLRO(operation, settings) && operationIsNotDataPlaneLRO(operation, settings);
+        return operationIsNotFluentLRO(operation, settings) && operationIsNotDataPlaneLRO(operation, settings)
+            && operation.getResponses().stream()
+                .filter(r -> r.getProtocol() != null && r.getProtocol().getHttp() != null && r.getProtocol().getHttp().getHeaders() != null)
+                .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
+                .anyMatch(Objects::nonNull);
     }
 
     /**
@@ -195,14 +194,13 @@ public class SchemaUtil {
             summary = null;
         }
 
-        List<String> parts = new ArrayList<>();
-        if (!CoreUtils.isNullOrEmpty(summary)) {
-            parts.add(summary);
+        if (!CoreUtils.isNullOrEmpty(summary) && !CoreUtils.isNullOrEmpty(description)) {
+            return summary + "\n\n" + description;
+        } else if (!CoreUtils.isNullOrEmpty(summary)) {
+            return summary;
+        } else {
+            return description;
         }
-        if (!CoreUtils.isNullOrEmpty(description)) {
-            parts.add(description);
-        }
-        return String.join("\n\n", parts);
     }
 
     public static IType removeModelFromParameter(RequestParameterLocation parameterRequestLocation, IType type) {
@@ -291,10 +289,11 @@ public class SchemaUtil {
      */
     public static Set<ImplementationDetails.Usage> mapSchemaContext(Set<SchemaContext> schemaContexts) {
         if (schemaContexts == null) {
-            return Collections.emptySet();
+            return new HashSet<>();
         }
+
         return schemaContexts.stream()
-            .map(c -> ImplementationDetails.Usage.fromValue(c.value()))
+            .map(ImplementationDetails.Usage::fromSchemaContext)
             .collect(Collectors.toSet());
     }
 
@@ -304,11 +303,13 @@ public class SchemaUtil {
 
     // SyncPoller or PollerFlux does not contain full Response and hence does not have headers
     private static boolean operationIsNotFluentLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isFluent() && operation.getExtensions() != null && operation.getExtensions().isXmsLongRunningOperation());
+        return !(settings.isFluent() && operation.getExtensions() != null
+            && operation.getExtensions().isXmsLongRunningOperation());
     }
 
     private static boolean operationIsNotDataPlaneLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isDataPlaneClient() && operation.getExtensions() != null && operation.getExtensions().isXmsLongRunningOperation());
+        return !(settings.isDataPlaneClient() && operation.getExtensions() != null
+            && operation.getExtensions().isXmsLongRunningOperation());
     }
 
     public static String getDefaultName(Metadata m) {

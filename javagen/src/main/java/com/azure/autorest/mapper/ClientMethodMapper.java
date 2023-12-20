@@ -71,7 +71,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private static final Pattern ANYTHING_THEN_PERIOD = Pattern.compile(".*\\.");
 
-    private final Map<CacheKey, List<ClientMethod>> parsed = new ConcurrentHashMap<>();
+    private static final Map<CacheKey, List<ClientMethod>> PARSED = new ConcurrentHashMap<>();
 
     private static class CacheKey {
         private final Operation operation;
@@ -84,10 +84,16 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+
+            if (!(o instanceof CacheKey)) {
+                return false;
+            }
+
             CacheKey cacheKey = (CacheKey) o;
-            return isProtocolMethod == cacheKey.isProtocolMethod && operation.equals(cacheKey.operation);
+            return isProtocolMethod == cacheKey.isProtocolMethod && Objects.equals(operation, cacheKey.operation);
         }
 
         @Override
@@ -96,7 +102,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         }
     }
 
-    private static final ReturnTypeDescriptionAssembler DESCRIPTION_ASSEMBLER = new ReturnTypeDescriptionAssembler(Javagen.getPluginInstance());
+    private static final ReturnTypeDescriptionAssembler DESCRIPTION_ASSEMBLER
+        = new ReturnTypeDescriptionAssembler(Javagen.getPluginInstance());
 
     /**
      * Creates a new instance of {@link ClientMethodMapper}.
@@ -127,15 +134,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      */
     public List<ClientMethod> map(Operation operation, boolean isProtocolMethod) {
         CacheKey cacheKey = new CacheKey(operation, isProtocolMethod);
-        List<ClientMethod> clientMethods = parsed.get(cacheKey);
+        List<ClientMethod> clientMethods = PARSED.get(cacheKey);
         if (clientMethods != null) {
             return clientMethods;
         }
 
-        clientMethods = createClientMethods(operation, isProtocolMethod);
-        parsed.put(cacheKey, clientMethods);
-
-        return clientMethods;
+        return PARSED.computeIfAbsent(cacheKey, key -> createClientMethods(operation, isProtocolMethod));
     }
 
     /**
@@ -1695,7 +1699,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         String finalTypePackage;
         if (modelName.contains(".")) {
             finalTypeName = ANYTHING_THEN_PERIOD.matcher(modelName).replaceAll("");
-            finalTypePackage = modelName.replace("." + finalTypeName, "");
+            finalTypePackage = CodeNamer.linearReplace(modelName, "." + finalTypeName, "");
         } else {
             finalTypeName = modelName;
             finalTypePackage = JavaSettings.getInstance().getPackage();

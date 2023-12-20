@@ -10,12 +10,18 @@ import com.azure.autorest.model.clientmodel.ClassType;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The model mapper for Fluent.
+ */
 public class FluentModelMapper extends ModelMapper {
 
     private static final FluentModelMapper INSTANCE = new FluentModelMapper();
 
     private final Set<String> removedModels = new HashSet<>();
 
+    /**
+     * Create a new FluentModelMapper instance.
+     */
     public static FluentModelMapper getInstance() {
         return INSTANCE;
     }
@@ -23,11 +29,16 @@ public class FluentModelMapper extends ModelMapper {
     @Override
     protected boolean isPredefinedModel(ClassType modelType) {
         return !FluentType.nonResourceType(modelType)
-                || !FluentType.nonManagementError(modelType)
-                || !FluentType.nonSystemData(modelType)
-                || removedModels.contains(modelType.getName());
+            || !FluentType.nonManagementError(modelType)
+            || !FluentType.nonSystemData(modelType)
+            || removedModels.contains(modelType.getName());
     }
 
+    /**
+     * Add the given models to the list of removed models.
+     *
+     * @param models the models to remove
+     */
     public void addRemovedModels(Set<String> models) {
         removedModels.addAll(models);
     }

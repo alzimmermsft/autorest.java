@@ -8,7 +8,7 @@ import com.azure.autorest.util.CodeNamer;
 import java.util.function.Consumer;
 
 public class XmlBlock {
-    private XmlFileContents contents;
+    private final XmlFileContents contents;
 
     public XmlBlock(XmlFileContents contents) {
         this.contents = contents;
@@ -47,10 +47,11 @@ public class XmlBlock {
     }
 
     public final void tagWithInlineComment(String tag, String value, String comment) {
-        contents.line("<%1$s>%2$s</%1$s> <!-- %3$s -->", tag, CodeNamer.escapeXmlComment(value), CodeNamer.escapeXmlComment(comment));
+        contents.line("<" + tag + ">" + CodeNamer.escapeXmlComment(value) + "</" + tag + "> <!-- "
+            + CodeNamer.escapeXmlComment(comment) + " -->");
     }
 
     public final void tagCData(String tag, String value) {
-        contents.line("<%1$s><![CDATA[%2$s]]></%1$s>", tag, value);
+        contents.line("<" + tag + "><![CDATA[" + value + "]]></" + tag + ">");
     }
 }

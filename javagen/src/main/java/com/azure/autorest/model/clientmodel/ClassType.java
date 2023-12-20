@@ -6,6 +6,7 @@ package com.azure.autorest.model.clientmodel;
 import com.azure.autorest.extension.base.model.extensionmodel.XmsExtensions;
 import com.azure.autorest.extension.base.plugin.JavaSettings;
 import com.azure.autorest.util.ClientModelUtil;
+import com.azure.autorest.util.CodeNamer;
 import com.azure.autorest.util.TemplateUtil;
 import com.azure.core.client.traits.KeyCredentialTrait;
 import com.azure.core.credential.AzureKeyCredential;
@@ -165,10 +166,11 @@ public class ClassType implements IType {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
                 return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getGenericClass());
             } else {
-                return new Builder(false).packageName(classKey.getPackage().getName()
-                        .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.GENERIC_CORE_PACKAGE_NAME)
-                        .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.GENERIC_JSON_PACKAGE_NAME))
-                        .name(classKey.getSimpleName());
+                String packageName = CodeNamer.linearReplace(classKey.getPackage().getName(),
+                    ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.GENERIC_CORE_PACKAGE_NAME);
+                packageName = CodeNamer.linearReplace(packageName, ExternalPackage.AZURE_JSON_PACKAGE_NAME,
+                    ExternalPackage.GENERIC_JSON_PACKAGE_NAME);
+                return new Builder(false).packageName(packageName).name(classKey.getSimpleName());
             }
         } else {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {

@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+/**
+ * A mapper that maps a {@link Project} to {@link Pom}.
+ */
 public class FluentPomMapper extends PomMapper {
 
     public Pom map(FluentProject project) {
@@ -52,9 +54,9 @@ public class FluentPomMapper extends PomMapper {
         }
 
         // merge dependencies in POM and dependencies added above
-        dependencyIdentifiers.addAll(project.getPomDependencyIdentifiers().stream()
-                .filter(dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
-                .collect(Collectors.toList()));
+        project.getPomDependencyIdentifiers().stream()
+            .filter(dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
+            .forEach(dependencyIdentifiers::add);
 
         pom.setDependencyIdentifiers(dependencyIdentifiers);
 

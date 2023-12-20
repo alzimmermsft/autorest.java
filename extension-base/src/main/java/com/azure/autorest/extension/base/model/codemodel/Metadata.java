@@ -5,48 +5,41 @@ package com.azure.autorest.extension.base.model.codemodel;
 
 import com.azure.autorest.extension.base.model.extensionmodel.XmsExtensions;
 
+/**
+ * the model that contains all the information required to generate a service api
+ */
 public class Metadata {
 
     /**
-     * custom extensible metadata for individual language generators
-     * (Required)
-     *
+     * custom extensible metadata for individual language generators (Required)
      */
     private Languages language;
     private Protocols protocol;
     private XmsExtensions extensions;
 
     /**
-     * custom extensible metadata for individual language generators
-     * (Required)
-     *
+     * custom extensible metadata for individual language generators (Required)
      */
     public Languages getLanguage() {
         return language;
     }
 
     /**
-     * custom extensible metadata for individual language generators
-     * (Required)
-     *
+     * custom extensible metadata for individual language generators (Required)
      */
     public void setLanguage(Languages language) {
         this.language = language;
     }
 
     /**
-     * custom extensible metadata for individual protocols (ie, HTTP, etc)
-     * (Required)
-     *
+     * custom extensible metadata for individual protocols (ie, HTTP, etc) (Required)
      */
     public Protocols getProtocol() {
         return protocol;
     }
 
     /**
-     * custom extensible metadata for individual protocols (ie, HTTP, etc)
-     * (Required)
-     *
+     * custom extensible metadata for individual protocols (ie, HTTP, etc) (Required)
      */
     public void setProtocol(Protocols protocol) {
         this.protocol = protocol;

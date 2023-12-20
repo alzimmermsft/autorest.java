@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Mapper that maps a {@link Client} and {@link CodeModel} to a {@link ServiceClient} model.
+ */
 public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
     public ServiceClient map(Client client, CodeModel codeModel) {

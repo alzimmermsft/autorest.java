@@ -4,6 +4,7 @@
 package com.azure.autorest.model.javamodel;
 
 import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.azure.autorest.util.CodeNamer;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -16,8 +17,7 @@ public class JavaFileFactory {
     }
 
     public final JavaFile createEmptySourceFile(String packageKeyword, String fileNameWithoutExtension) {
-        String folderPath = Paths.get("src", "main", "java", packageKeyword.replace('.', File.separatorChar)).toString();
-        String filePath = Paths.get(folderPath).resolve(String.format("%1$s.java", fileNameWithoutExtension)).toString().replace('\\', '/').replace("//", "/");
+        String filePath = getFilePath("main", packageKeyword, fileNameWithoutExtension);
         return new JavaFile(filePath);
     }
 
@@ -30,8 +30,7 @@ public class JavaFileFactory {
     }
 
     public final JavaFile createSampleFile(String packageKeyword, String fileNameWithoutExtension) {
-        String folderPath = Paths.get("src", "samples", "java", packageKeyword.replace('.', File.separatorChar)).toString();
-        String filePath = Paths.get(folderPath).resolve(String.format("%1$s.java", fileNameWithoutExtension)).toString().replace('\\', '/').replace("//", "/");
+        String filePath = getFilePath("samples", packageKeyword, fileNameWithoutExtension);
         JavaFile javaFile = new JavaFile(filePath);
 
         addCommentAndPackage(javaFile, packageKeyword);
@@ -40,13 +39,20 @@ public class JavaFileFactory {
     }
 
     public final JavaFile createTestFile(String packageKeyword, String fileNameWithoutExtension) {
-        String folderPath = Paths.get("src", "test", "java", packageKeyword.replace('.', File.separatorChar)).toString();
-        String filePath = Paths.get(folderPath).resolve(String.format("%1$s.java", fileNameWithoutExtension)).toString().replace('\\', '/').replace("//", "/");
+        String filePath = getFilePath("test", packageKeyword, fileNameWithoutExtension);
         JavaFile javaFile = new JavaFile(filePath);
 
         addCommentAndPackage(javaFile, packageKeyword);
 
         return javaFile;
+    }
+
+    private static String getFilePath(String sourceDirectory, String packageKeyword, String fileNameWithoutExtension) {
+        packageKeyword = CodeNamer.linearReplace(packageKeyword, ".", File.separator);
+        String folderPath = Paths.get("src", sourceDirectory, "java", packageKeyword).toString();
+        String filePath = Paths.get(folderPath).resolve(fileNameWithoutExtension + ".java").toString();
+        filePath = CodeNamer.linearReplace(filePath, "\\", "/");
+        return CodeNamer.linearReplace(filePath, "//", "/");
     }
 
     private void addCommentAndPackage(JavaFile javaFile, String packageName) {

@@ -24,12 +24,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+/**
+ * A mapper that maps {@link Property} to {@link ClientModelProperty} .
+ */
 public class ModelPropertyMapper implements IMapper<Property, ClientModelProperty> {
     private static final ModelPropertyMapper INSTANCE = new ModelPropertyMapper();
 
     private ModelPropertyMapper() {
     }
 
+    /**
+     * Gets the global {@link ModelPropertyMapper} instance.
+     *
+     * @return the global {@link ModelPropertyMapper} instance.
+     */
     public static ModelPropertyMapper getInstance() {
         return INSTANCE;
     }
@@ -39,9 +47,9 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         JavaSettings settings = JavaSettings.getInstance();
 
         ClientModelProperty.Builder builder = new ClientModelProperty.Builder()
-                .name(property.getLanguage().getJava().getName())
-                .required(property.isRequired())
-                .readOnly(property.isReadOnly());
+            .name(property.getLanguage().getJava().getName())
+            .required(property.isRequired())
+            .readOnly(property.isReadOnly());
 
 
         String description;
@@ -49,9 +57,10 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         if (summaryInProperty == null) {
             summaryInProperty = property.getSchema() == null ? null : property.getSchema().getSummary();
         }
-        String descriptionInProperty = property.getLanguage().getJava() == null ? null : property.getLanguage().getJava().getDescription();
+        String descriptionInProperty = property.getLanguage().getJava() == null
+            ? null : property.getLanguage().getJava().getDescription();
         if (CoreUtils.isNullOrEmpty(summaryInProperty) && CoreUtils.isNullOrEmpty(descriptionInProperty)) {
-            description = String.format("The %s property.", property.getSerializedName());
+            description = "The " + property.getSerializedName() + " property.";
         } else {
             description = SchemaUtil.mergeSummaryWithDescription(summaryInProperty, descriptionInProperty);
         }
@@ -77,9 +86,9 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         builder.needsFlatten(flattened);
 
         if (property.getExtensions() != null && property.getExtensions().isXmsClientFlatten()
-                // avoid non-object schema or a plain object schema without any properties
-                && property.getSchema() instanceof ObjectSchema && !ObjectMapper.isPlainObject((ObjectSchema) property.getSchema())
-                && settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
+            // avoid non-object schema or a plain object schema without any properties
+            && property.getSchema() instanceof ObjectSchema && !ObjectMapper.isPlainObject((ObjectSchema) property.getSchema())
+            && settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
             // avoid naming conflict
             builder.name("inner" + CodeNamer.toPascalCase(property.getLanguage().getJava().getName()));
             builder.clientFlatten(true);
@@ -88,16 +97,18 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         StringBuilder serializedName = new StringBuilder();
         if (property.getFlattenedNames() != null && !property.getFlattenedNames().isEmpty()) {
             for (String flattenedName : property.getFlattenedNames()) {
-                serializedName.append(flattenedName.replace(".", "\\\\.")).append(".");
+                serializedName.append(CodeNamer.linearReplace(flattenedName, ".", "\\\\.")).append(".");
             }
             serializedName.deleteCharAt(serializedName.length() - 1);
         } else if (flattened) {
-            serializedName.append(property.getSerializedName().replace(".", "\\\\."));
+            serializedName.append(CodeNamer.linearReplace(property.getSerializedName(), ".", "\\\\."));
         } else {
             serializedName.append(property.getSerializedName());
         }
-        builder.serializedName(serializedName.toString());
-        if (serializedName.toString().isEmpty() && "additionalProperties".equals(property.getLanguage().getJava().getName())) {
+
+        String serializedNameString = serializedName.toString();
+        builder.serializedName(serializedNameString);
+        if (serializedNameString.isEmpty() && "additionalProperties".equals(property.getLanguage().getJava().getName())) {
             builder.additionalProperties(true);
         }
 
@@ -136,9 +147,8 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
             .xmlText(isXmlText)
             .xmlPrefix(xmlPrefix);
 
-        List<String> annotationArgumentList = new ArrayList<String>() {{
-            add(String.format("value = \"%s\"", xmlParamName));
-        }};
+        List<String> annotationArgumentList = new ArrayList<>();
+        annotationArgumentList.add("value = \"" + xmlParamName + "\"");
 
         if (property.isRequired() && !propertyIsSecret && !settings.isDisableRequiredJsonAnnotation()) {
             annotationArgumentList.add("required = true");
@@ -150,7 +160,7 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         if (property.isReadOnly()) {
             annotationArgumentList.add("access = JsonProperty.Access.WRITE_ONLY");
         }
-        builder.annotationArguments(String.join(", ", annotationArgumentList));
+        builder.annotationArguments(CoreUtils.stringJoin(", ", annotationArgumentList));
 
         String headerCollectionPrefix = null;
         if (property.getExtensions() != null && property.getExtensions().getXmsHeaderCollectionPrefix() != null) {
@@ -191,20 +201,18 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         if (property.getExtensions() != null) {
             List<String> xmsMutability = property.getExtensions().getXmsMutability();
             if (xmsMutability != null) {
-                List<ClientModelProperty.Mutability> mutabilities = xmsMutability.stream()
-                        .map(m -> ClientModelProperty.Mutability.valueOf(m.toUpperCase(Locale.ROOT)))
-                        .collect(Collectors.toList());
-                builder.mutabilities(mutabilities);
+                builder.mutabilities(xmsMutability.stream()
+                    .map(m -> ClientModelProperty.Mutability.valueOf(m.toUpperCase(Locale.ROOT)))
+                    .collect(Collectors.toList()));
             }
         }
 
         // handle x-ms-client-default for primitive type, enum, boxed type and string
         if (property.getClientDefaultValue() != null &&
-                (propertyWireType instanceof PrimitiveType || propertyWireType instanceof EnumType ||
-                        (propertyWireType instanceof ClassType && ((ClassType) propertyWireType).isBoxedType()) ||
-                        propertyWireType.equals(ClassType.STRING))) {
-            String autoRestPropertyDefaultValueExpression = propertyWireType.defaultValueExpression(property.getClientDefaultValue());
-            builder.defaultValue(autoRestPropertyDefaultValueExpression);
+            (propertyWireType instanceof PrimitiveType || propertyWireType instanceof EnumType
+                || (propertyWireType instanceof ClassType && ((ClassType) propertyWireType).isBoxedType())
+                || propertyWireType.equals(ClassType.STRING))) {
+            builder.defaultValue(propertyWireType.defaultValueExpression(property.getClientDefaultValue()));
         }
 
         return builder.build();

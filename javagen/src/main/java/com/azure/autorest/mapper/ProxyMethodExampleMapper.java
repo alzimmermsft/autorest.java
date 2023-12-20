@@ -11,13 +11,24 @@ import com.azure.autorest.util.XmsExampleWrapper;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * A mapper that maps an x-ms-examples in {@link XmsExampleWrapper} to {@link ProxyMethodExample}.
+ */
 public class ProxyMethodExampleMapper implements IMapper<XmsExampleWrapper, ProxyMethodExample> {
 
     private static final ProxyMethodExampleMapper INSTANCE = new ProxyMethodExampleMapper();
 
+    /**
+     * Creates an instance of the {@link ProxyMethodExampleMapper} class.
+     */
     protected ProxyMethodExampleMapper() {
     }
 
+    /**
+     * Gets the global {@link ProxyMethodExampleMapper} instance.
+     *
+     * @return the global {@link ProxyMethodExampleMapper} instance.
+     */
     public static ProxyMethodExampleMapper getInstance() {
         return INSTANCE;
     }
@@ -68,6 +79,6 @@ public class ProxyMethodExampleMapper implements IMapper<XmsExampleWrapper, Prox
     }
 
     private String getValidName(String exampleName) {
-        return CodeNamer.getValidName(exampleName).replace("_", "");
+        return CodeNamer.linearReplace(CodeNamer.getValidName(exampleName, c -> false), "_", "");
     }
 }

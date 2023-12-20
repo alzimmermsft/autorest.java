@@ -7,14 +7,24 @@ import com.azure.autorest.android.model.clientmodel.AndroidClientModel;
 import com.azure.autorest.mapper.ModelMapper;
 import com.azure.autorest.model.clientmodel.ClientModel;
 
+/**
+ * The model mapper for Android.
+ */
 public class AndroidModelMapper extends ModelMapper {
-    private static ModelMapper instance = new AndroidModelMapper();
+    private static final ModelMapper INSTANCE = new AndroidModelMapper();
 
+    /**
+     * Create a new ModelMapper instance.
+     */
     protected AndroidModelMapper() {
     }
 
+    /**
+     * Get the singleton ModelMapper instance.
+     * @return The singleton ModelMapper instance.
+     */
     public static ModelMapper getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     @Override

@@ -3,12 +3,12 @@
 
 package com.azure.autorest.model.clientmodel;
 
-
 import java.util.Set;
 
 public class IterableType extends GenericType {
     /**
      * Create a new IterableType from the provided properties.
+     *
      * @param elementType The type of elements that are stored in this sequence.
      */
     public IterableType(IType elementType) {
@@ -39,11 +39,10 @@ public class IterableType extends GenericType {
     @Override
     public final String validate(String expression, int depth) {
         String var = depth == 0 ? "e" : "e" + depth;
-        String elementValidation = getElementType() instanceof GenericType
-                ? ((GenericType) getElementType()).validate(var, depth + 1)
-                : getElementType().validate(var);
+        String elementValidation = getElementType() instanceof GenericType ? ((GenericType) getElementType()).validate(
+            var, depth + 1) : getElementType().validate(var);
         if (elementValidation != null) {
-            return String.format("%s.forEach(%s -> %s)", expression, var, elementValidation);
+            return expression + ".forEach(" + var + " -> " + elementValidation + ")";
         } else {
             return null;
         }

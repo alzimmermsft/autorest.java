@@ -16,10 +16,18 @@ import com.azure.core.util.CoreUtils;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A mapper that maps a proxy method in {@link Operation} to {@link ProxyMethod}.
+ */
 public class FluentProxyMethodMapper extends ProxyMethodMapper {
 
     private static final FluentProxyMethodMapper INSTANCE = new FluentProxyMethodMapper();
 
+    /**
+     * Gets the global {@link ProxyMethodMapper} instance.
+     *
+     * @return the global {@link ProxyMethodMapper} instance.
+     */
     public static FluentProxyMethodMapper getInstance() {
         return INSTANCE;
     }
@@ -84,9 +92,7 @@ public class FluentProxyMethodMapper extends ProxyMethodMapper {
     protected boolean operationGroupNotNull(Operation operation, JavaSettings settings) {
         return super.operationGroupNotNull(operation, settings)
             // hack for Fluent, as Lite use "ResourceProvider" if operation group is unnamed
-            && !(
-                settings.isFluent()
-                    && Objects.equals(Utils.getNameForUngroupedOperations(operation.getOperationGroup().getCodeModel(), FluentStatic.getFluentJavaSettings()), operation.getOperationGroup().getLanguage().getDefault().getName())
-            );
+            && !(settings.isFluent()
+            && Objects.equals(Utils.getNameForUngroupedOperations(operation.getOperationGroup().getCodeModel(), FluentStatic.getFluentJavaSettings()), operation.getOperationGroup().getLanguage().getDefault().getName()));
     }
 }

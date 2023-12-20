@@ -9,8 +9,8 @@ import java.util.List;
  * A transformation class that contains mappings from input parameters to proxy method parameters.
  */
 public class MethodTransformationDetail {
-    private ClientMethodParameter outParameter;
-    private List<ParameterMapping> parameterMappings;
+    private final ClientMethodParameter outParameter;
+    private final List<ParameterMapping> parameterMappings;
 
     public MethodTransformationDetail(ClientMethodParameter outParameter, List<ParameterMapping> parameterMappings) {
         this.outParameter = outParameter;

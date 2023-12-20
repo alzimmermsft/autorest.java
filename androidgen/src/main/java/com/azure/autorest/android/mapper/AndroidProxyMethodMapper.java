@@ -4,6 +4,7 @@
 package com.azure.autorest.android.mapper;
 
 import com.azure.autorest.android.model.clientmodel.AndroidProxyMethod;
+import com.azure.autorest.extension.base.model.codemodel.Operation;
 import com.azure.autorest.extension.base.model.codemodel.RequestParameterLocation;
 import com.azure.autorest.mapper.ProxyMethodMapper;
 import com.azure.autorest.model.clientmodel.ClassType;
@@ -17,14 +18,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A mapper that maps a proxy method in {@link Operation} to {@link ProxyMethod}.
+ */
 public class AndroidProxyMethodMapper extends ProxyMethodMapper {
-    private static ProxyMethodMapper instance = new AndroidProxyMethodMapper();
+    private static final ProxyMethodMapper INSTANCE = new AndroidProxyMethodMapper();
 
+    /**
+     * Creates an instance of the {@link ProxyMethodMapper} class.
+     */
     protected AndroidProxyMethodMapper() {
     }
 
     public static ProxyMethodMapper getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     @Override

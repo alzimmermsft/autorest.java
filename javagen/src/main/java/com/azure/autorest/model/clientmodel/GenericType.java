@@ -4,6 +4,7 @@
 package com.azure.autorest.model.clientmodel;
 
 import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.azure.autorest.util.CodeNamer;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -44,8 +45,8 @@ public class GenericType implements IType {
             if (Objects.equals(packageKeyword + "." + name, com.azure.core.http.rest.Response.class.getName())) {
                 packageKeyword = "com.generic.core.http";
             } else {
-                packageKeyword = packageKeyword
-                        .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.GENERIC_CORE_PACKAGE_NAME);
+                packageKeyword = CodeNamer.linearReplace(packageKeyword, ExternalPackage.AZURE_CORE_PACKAGE_NAME,
+                    ExternalPackage.GENERIC_CORE_PACKAGE_NAME);
             }
         }
 
@@ -186,7 +187,7 @@ public class GenericType implements IType {
     }
 
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
-        imports.add(String.format("%1$s.%2$s", getPackage(), getName()));
+        imports.add(packageName + "." + name);
         for (IType typeArgument : getTypeArguments()) {
             typeArgument.addImportsTo(imports, includeImplementationImports);
         }

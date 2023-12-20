@@ -22,12 +22,23 @@ import com.azure.autorest.util.MethodUtil;
 import com.azure.autorest.util.SchemaUtil;
 import com.azure.core.util.serializer.CollectionFormat;
 
+/**
+ * A mapper that maps a parameter in {@link Parameter} to {@link ProxyMethodParameter}.
+ */
 public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParameter> {
     private static final ProxyParameterMapper INSTANCE = new ProxyParameterMapper();
 
+    /**
+     * Creates an instance of the {@link ProxyParameterMapper} class.
+     */
     protected ProxyParameterMapper() {
     }
 
+    /**
+     * Gets the global {@link ProxyParameterMapper} instance.
+     *
+     * @return the global {@link ProxyParameterMapper} instance.
+     */
     public static ProxyParameterMapper getInstance() {
         return INSTANCE;
     }
@@ -135,7 +146,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
                     clientPropertyName = CodeNamer.toCamelCase(clientPropertyName);
                 }
             }
-            parameterReference = String.format("%s.%s%s()", caller, prefix, clientPropertyName);
+            parameterReference = caller + "." + prefix + clientPropertyName + "()";
             if (isServiceVersion) {
                 parameterReference += ".getVersion()";
             }
@@ -161,8 +172,8 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
                     collectionFormat = CollectionFormat.CSV;
             }
         }
-        if (collectionFormat == null && clientType instanceof ListType
-                && ClassType.STRING == wireType) {
+
+        if (collectionFormat == null && clientType instanceof ListType && ClassType.STRING == wireType) {
             collectionFormat = CollectionFormat.CSV;
         }
         builder.collectionFormat(collectionFormat);
@@ -171,6 +182,11 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
         return builder.build();
     }
 
+    /**
+     * Creates a builder for {@link ProxyMethodParameter} to be used in {@link #map(Parameter)}.
+     *
+     * @return the builder.
+     */
     protected ProxyMethodParameter.Builder createProxyMethodParameterBuilder() {
         return new ProxyMethodParameter.Builder();
     }

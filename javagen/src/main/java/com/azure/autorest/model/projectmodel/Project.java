@@ -179,7 +179,7 @@ public class Project {
     private Optional<String> findSdkFolder() {
         JavaSettings settings = JavaSettings.getInstance();
         Optional<String> sdkFolderOpt = settings.getAutorestSettings().getJavaSdksFolder();
-        if (!sdkFolderOpt.isPresent()) {
+        if (sdkFolderOpt.isEmpty()) {
             LOGGER.info("'java-sdks-folder' parameter not available");
         } else {
             if (!Paths.get(sdkFolderOpt.get()).isAbsolute()) {
@@ -189,7 +189,7 @@ public class Project {
         }
 
         // try to deduct it from "output-folder"
-        if (!sdkFolderOpt.isPresent()) {
+        if (sdkFolderOpt.isEmpty()) {
             String outputFolder = settings.getAutorestSettings().getOutputFolder();
             if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
                 Path path = Paths.get(outputFolder).normalize();
@@ -215,7 +215,7 @@ public class Project {
             }
         }
 
-        if (!sdkFolderOpt.isPresent()) {
+        if (sdkFolderOpt.isEmpty()) {
             LOGGER.warn("'azure-sdk-for-java' SDK folder not found, fallback to default versions for dependencies");
         }
 
@@ -236,7 +236,7 @@ public class Project {
     protected void findPackageVersions() {
         Optional<String> sdkFolderOpt = findSdkFolder();
         this.integratedWithSdk = sdkFolderOpt.isPresent();
-        if (!sdkFolderOpt.isPresent()) {
+        if (sdkFolderOpt.isEmpty()) {
             return;
         }
 

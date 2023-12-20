@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 public class XmlFileContents {
     private String singleIndent = "    ";
 
-    private StringBuilder contents;
-    private StringBuilder linePrefix;
+    private final StringBuilder contents;
+    private final StringBuilder linePrefix;
 
     private Integer wordWrapWidth = null;
 
@@ -164,7 +164,7 @@ public class XmlFileContents {
     }
 
     private void line(String text, boolean addPrefix) {
-        text(String.format("%1$s%2$s", text, System.lineSeparator()), addPrefix);
+        text(text + System.lineSeparator(), addPrefix);
         currentLineType = CurrentLineType.Empty;
     }
 
@@ -189,28 +189,27 @@ public class XmlFileContents {
     }
 
     public void tag(String tag, String value) {
-        line("<%s>%s</%s>", tag, value, tag);
+        line("<" + tag + ">" + value + "</" + tag + ">");
     }
 
     public void block(String text, Consumer<XmlBlock> bodyAction) {
-        line("<%s>", text);
+        line("<" + text + ">");
         indent(() ->
                 bodyAction.accept(new XmlBlock(this)));
-        line("</%s>", text);
+        line("</" + text + ">");
     }
 
     public void block(String text, Map<String, String> annotations, Consumer<XmlBlock> bodyAction) {
-        if (annotations != null && annotations.size() > 0) {
+        if (annotations != null && !annotations.isEmpty()) {
             String append = annotations.entrySet().stream()
-                    .map(entry -> String.format("%s=\"%s\"", entry.getKey(), entry.getValue()))
-                    .collect(Collectors.joining(" "));
-            line("<%s %s>", text, append);
+                .map(entry -> entry.getKey() + "=\"" + entry.getValue() + "\"")
+                .collect(Collectors.joining(" "));
+            line("<" + text + " " + append + ">");
         } else {
-            line("<%s>", text);
+            line("<" + text + ">");
         }
-        indent(() ->
-                bodyAction.accept(new XmlBlock(this)));
-        line("</%s>", text);
+        indent(() -> bodyAction.accept(new XmlBlock(this)));
+        line("</" + text + ">");
     }
 
     public void blockComment(String text) {
@@ -224,8 +223,7 @@ public class XmlFileContents {
     }
 
     public void blockComment(int wordWrapWidth, Consumer<XmlLineComment> commentAction) {
-        blockComment((comment) -> withWordWrap(wordWrapWidth, () ->
-                commentAction.accept(new XmlLineComment(this))));
+        blockComment(comment -> withWordWrap(wordWrapWidth, () -> commentAction.accept(new XmlLineComment(this))));
     }
 
     private enum CurrentLineType {

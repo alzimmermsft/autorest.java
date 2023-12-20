@@ -31,10 +31,12 @@ public class EnumType implements IType {
     private final List<ClientEnumValue> values;
 
     private final IType elementType;
+    private final String elementTypePascalName;
+    private final String elementTypeClientTypePascalName;
 
     private final ImplementationDetails implementationDetails;
 
-    private String crossLanguageDefinitionId;
+    private final String crossLanguageDefinitionId;
 
     /**
      * Create a new Enum with the provided properties.
@@ -43,17 +45,17 @@ public class EnumType implements IType {
      * @param expandable Whether this will be an ExpandableStringEnum type.
      * @param values The values of the Enum.
      */
-    private EnumType(String packageKeyword, String name, String description,
-                     boolean expandable, List<ClientEnumValue> values,
-                     IType elementType,
-                     ImplementationDetails implementationDetails,
-                     String crossLanguageDefinitionId) {
+    private EnumType(String packageKeyword, String name, String description, boolean expandable,
+        List<ClientEnumValue> values, IType elementType, ImplementationDetails implementationDetails,
+        String crossLanguageDefinitionId) {
         this.name = name;
         this.packageName = packageKeyword;
         this.description = description;
         this.expandable = expandable;
         this.values = values;
         this.elementType = elementType;
+        this.elementTypePascalName = CodeNamer.toPascalCase(elementType.toString());
+        this.elementTypeClientTypePascalName = CodeNamer.toPascalCase(elementType.getClientType().toString());
         this.implementationDetails = implementationDetails;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
     }
@@ -109,17 +111,17 @@ public class EnumType implements IType {
         if (sourceExpression == null) {
             return null;
         }
+
         if (this.getExpandable()) {
-            for (ClientEnumValue enumValue : this.getValues()) {
+            for (ClientEnumValue enumValue : values) {
                 if (sourceExpression.equals(enumValue.getValue())) {
                     return getName() + "." + enumValue.getName();
                 }
             }
-            return String.format("%1$s.from%2$s(%3$s)", getName(),
-                CodeNamer.toPascalCase(this.getElementType().toString()),
-                this.getElementType().defaultValueExpression(sourceExpression));
+
+            return name + ".from" + elementTypePascalName + "(" + elementType.defaultValueExpression(sourceExpression) + ")";
         } else {
-            for (ClientEnumValue enumValue : this.getValues()) {
+            for (ClientEnumValue enumValue : values) {
                 if (sourceExpression.equals(enumValue.getValue())) {
                     return getName() + "." + enumValue.getName();
                 }
@@ -134,7 +136,7 @@ public class EnumType implements IType {
      * @return The method name used to convert JSON to the enum type.
      */
     public final String getFromMethodName() {
-        return "from" + CodeNamer.toPascalCase(elementType.getClientType().toString());
+        return "from" + elementTypeClientTypePascalName;
     }
 
     /**
@@ -143,7 +145,7 @@ public class EnumType implements IType {
      * @return The method name used to convert the enum type to JSON.
      */
     public final String getToMethodName() {
-        return "to" + CodeNamer.toPascalCase(elementType.getClientType().toString());
+        return "to" + elementTypeClientTypePascalName;
     }
 
     @Override
@@ -306,16 +308,8 @@ public class EnumType implements IType {
          * @return an immutable EnumType instance with the configurations on this builder.
          */
         public EnumType build() {
-            return new EnumType(
-                    packageName,
-                    name,
-                    description,
-                    expandable,
-                    values,
-                    elementType,
-                    implementationDetails,
-                    crossLanguageDefinitionId
-            );
+            return new EnumType(packageName, name, description, expandable, values, elementType, implementationDetails,
+                crossLanguageDefinitionId);
         }
     }
 }

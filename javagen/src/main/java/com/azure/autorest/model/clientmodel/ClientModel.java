@@ -389,7 +389,7 @@ public class ClientModel {
             imports.add("com.fasterxml.jackson.annotation.JsonTypeInfo");
             imports.add("com.fasterxml.jackson.annotation.JsonTypeName");
 
-            if (getDerivedModels() != null && getDerivedModels().size() > 0) {
+            if (getDerivedModels() != null && !getDerivedModels().isEmpty()) {
                 imports.add("com.fasterxml.jackson.annotation.JsonSubTypes");
                 getDerivedModels().forEach(m -> imports.add(m.getFullName()));
             }

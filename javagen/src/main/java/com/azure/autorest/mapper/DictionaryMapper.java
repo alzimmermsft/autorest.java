@@ -10,13 +10,21 @@ import com.azure.autorest.model.clientmodel.MapType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A mapper that maps a {@link DictionarySchema} to a {@link MapType}.
+ */
 public class DictionaryMapper implements IMapper<DictionarySchema, IType> {
     private static final DictionaryMapper INSTANCE = new DictionaryMapper();
-    Map<DictionarySchema, IType> parsed = new ConcurrentHashMap<>();
+    private static final Map<DictionarySchema, IType> PARSED = new ConcurrentHashMap<>();
 
     private DictionaryMapper() {
     }
 
+    /**
+     * Gets the global {@link DictionaryMapper} instance.
+     *
+     * @return The global {@link DictionaryMapper} instance.
+     */
     public static DictionaryMapper getInstance() {
         return INSTANCE;
     }
@@ -27,7 +35,7 @@ public class DictionaryMapper implements IMapper<DictionarySchema, IType> {
             return null;
         }
 
-        IType dictType = parsed.get(dictionaryType);
+        IType dictType = PARSED.get(dictionaryType);
         if (dictType != null) {
             return dictType;
         }
@@ -37,9 +45,8 @@ public class DictionaryMapper implements IMapper<DictionarySchema, IType> {
         if (elementNullable) {
             elementType = elementType.asNullable();
         }
-        dictType = new MapType(elementType, elementNullable);
-        parsed.put(dictionaryType, dictType);
 
-        return dictType;
+        final IType finalElementType = elementType;
+        return PARSED.computeIfAbsent(dictionaryType, dt -> new MapType(finalElementType, elementNullable));
     }
 }

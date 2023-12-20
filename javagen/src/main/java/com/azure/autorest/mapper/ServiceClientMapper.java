@@ -42,15 +42,26 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * A mapper that maps a client in {@link CodeModel} to {@link ServiceClient}.
+ */
 public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
     private static final ServiceClientMapper INSTANCE = new ServiceClientMapper();
 
     private static final Pattern TRAILING_FORWARD_SLASH = Pattern.compile("/+$");
     private static final Pattern URL_PATH = Pattern.compile("(?<!/)[/][^/]+");
 
+    /**
+     * Creates an instance of the {@link ServiceClientMapper} class.
+     */
     protected ServiceClientMapper() {
     }
 
+    /**
+     * Gets the global {@link ServiceClientMapper} instance.
+     *
+     * @return the global {@link ServiceClientMapper} instance.
+     */
     public static ServiceClientMapper getInstance() {
         return INSTANCE;
     }
@@ -104,10 +115,20 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         return builder.build();
     }
 
+    /**
+     * Gets a {@link Proxy.Builder} instance.
+     *
+     * @return a {@link Proxy.Builder} instance.
+     */
     protected Proxy.Builder getProxyBuilder() {
         return new Proxy.Builder();
     }
 
+    /**
+     * Creates a serializer adapter parameter.
+     *
+     * @return a serializer adapter parameter.
+     */
     protected ClientMethodParameter createSerializerAdapterParameter() {
         return new ClientMethodParameter.Builder()
                 .description("The serializer to serialize an object into a string")
@@ -124,10 +145,21 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .build();
     }
 
+    /**
+     * Gets the HTTP pipeline class type.
+     *
+     * @return the HTTP pipeline class type.
+     */
     protected IType getHttpPipelineClassType() {
         return ClassType.HTTP_PIPELINE;
     }
 
+    /**
+     * Adds a serializer adapter property.
+     *
+     * @param serviceClientProperties the service client properties.
+     * @param settings the Java settings.
+     */
     protected void addSerializerAdapterProperty(List<ServiceClientProperty> serviceClientProperties, JavaSettings settings) {
         if (settings.isBranded()) {
             serviceClientProperties.add(new ServiceClientProperty("The serializer to serialize an object into a string.",
@@ -136,11 +168,21 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         }
     }
 
+    /**
+     * Adds an HTTP pipeline property.
+     *
+     * @param serviceClientProperties the service client properties.
+     */
     protected void addHttpPipelineProperty(List<ServiceClientProperty> serviceClientProperties) {
         serviceClientProperties.add(new ServiceClientProperty("The HTTP pipeline to send requests through.",
                 ClassType.HTTP_PIPELINE, "httpPipeline", true, null));
     }
 
+    /**
+     * Creates a {@link ServiceClient.Builder} instance.
+     *
+     * @return a {@link ServiceClient.Builder} instance.
+     */
     protected ServiceClient.Builder createClientBuilder() {
         return new ServiceClient.Builder();
     }
@@ -170,7 +212,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             if (settings.isDataPlaneClient()) {
                 MethodUtil.tryMergeBinaryRequestsAndUpdateOperation(operation.getRequests(), operation);
             }
-            restAPIMethods.addAll(Mappers.getProxyMethodMapper().map(operation).values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+            Mappers.getProxyMethodMapper().map(operation).values().stream().flatMap(Collection::stream)
+                .forEach(restAPIMethods::add);
         }
         proxyBuilder.methods(restAPIMethods);
         Proxy proxy = proxyBuilder.build();

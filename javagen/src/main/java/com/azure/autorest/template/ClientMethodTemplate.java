@@ -791,12 +791,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 }
                 function.line("return new PagedIterable<>(");
 
-                String nextMethodArgs = clientMethod.getMethodPageDetails().getNextMethod().getArgumentList().replace("requestOptions", "requestOptionsForNextPage");
+                String nextMethodArgs = CodeNamer.linearReplace(
+                    clientMethod.getMethodPageDetails().getNextMethod().getArgumentList(), "requestOptions",
+                    "requestOptionsForNextPage");
                 String firstPageArgs = clientMethod.getArgumentList();
                 if (clientMethod.getParameters()
                     .stream()
                     .noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
-                    nextMethodArgs = nextMethodArgs.replace("context", "Context.NONE");
+                    nextMethodArgs = CodeNamer.linearReplace(nextMethodArgs, "context", "Context.NONE");
                     if (!CoreUtils.isNullOrEmpty(firstPageArgs)) {
                         firstPageArgs = firstPageArgs + ", Context.NONE";
                     } else {
@@ -1462,20 +1464,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
             Optional<String> serializedName = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
             if (serializedName.isPresent()) {
-                argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
-                StringBuilder expression = new StringBuilder();
-                expression.append("(pageSize) -> {");
-                expression.append("RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;")
-                        .append("if (pageSize != null) {")
-                        .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
-                        .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
-                        .append("    urlBuilder.setQueryParameter(\"").append(serializedName.get()).append("\", String.valueOf(pageSize));")
-                        .append("    requestLocal.setUrl(urlBuilder.toString());")
-                        .append("  });")
-                        .append("}")
-                        .append(String.format("return %s(%s);", methodName, argumentLine));
-                expression.append("}");
-                return expression.toString();
+                argumentLine = CodeNamer.linearReplace(argumentLine, "requestOptions", "requestOptionsLocal");
+                return "(pageSize) -> {"
+                    + "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;"
+                    + "if (pageSize != null) { requestOptionsLocal.addRequestCallback(requestLocal -> {"
+                    + "    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());"
+                    + "    urlBuilder.setQueryParameter(\"" + serializedName.get() + "\", String.valueOf(pageSize));"
+                    + "    requestLocal.setUrl(urlBuilder.toString());" + "  });" + "}"
+                    + String.format("return %s(%s);", methodName, argumentLine) + "}";
             }
         }
 
@@ -1486,26 +1482,20 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
             Optional<String> serializedName = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
             if (serializedName.isPresent()) {
-                argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
-                StringBuilder expression = new StringBuilder();
-                expression.append("(nextLink, pageSize) -> {");
-                expression.append("RequestOptions requestOptionsLocal = new RequestOptions();")
-                        .append("requestOptionsLocal.setContext(requestOptionsForNextPage.getContext());")
-                        .append("if (pageSize != null) {")
-                        .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
-                        .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
-                        .append("    urlBuilder.setQueryParameter(\"").append(serializedName.get()).append("\", String.valueOf(pageSize));")
-                        .append("    requestLocal.setUrl(urlBuilder.toString());")
-                        .append("  });")
-                        .append("}")
-                        .append(String.format("return %s(%s);", methodName, argumentLine));
-                expression.append("}");
-                return expression.toString();
+                argumentLine = CodeNamer.linearReplace(argumentLine, "requestOptions", "requestOptionsLocal");
+                return "(nextLink, pageSize) -> {"
+                    + "RequestOptions requestOptionsLocal = new RequestOptions();"
+                    + "requestOptionsLocal.setContext(requestOptionsForNextPage.getContext());"
+                    + "if (pageSize != null) {" + "  requestOptionsLocal.addRequestCallback(requestLocal -> {"
+                    + "    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());"
+                    + "    urlBuilder.setQueryParameter(\"" + serializedName.get() + "\", String.valueOf(pageSize));"
+                    + "    requestLocal.setUrl(urlBuilder.toString());" + "  });" + "}"
+                    + String.format("return %s(%s);", methodName, argumentLine) + "}";
             }
         }
 
         if (settings.isDataPlaneClient()) {
-            argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
+            argumentLine = CodeNamer.linearReplace(argumentLine, "requestOptions", "requestOptionsForNextPage");
         }
         return String.format("nextLink -> %s(%s)", methodName, argumentLine);
     }
@@ -1530,16 +1520,20 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 }
             }
         }
-        return clientMethod.getMethodPollingDetails().getPollingStrategy()
-            .replace("{httpPipeline}", clientMethod.getClientReference() + ".getHttpPipeline()")
-            .replace("{endpoint}", endpoint)
-            .replace("{context}", contextParam)
-            .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
-            .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
-            .replace(".setServiceVersion(null)", "")
-            .replace(".setEndpoint(null)", "");
+        String pollingStrategy = CodeNamer.linearReplace(clientMethod.getMethodPollingDetails().getPollingStrategy(),
+                "{httpPipeline}", clientMethod.getClientReference() + ".getHttpPipeline()");
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{endpoint}", endpoint);
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{context}", contextParam);
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{serviceVersion}",
+            getServiceVersionValue(clientMethod));
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{serializerAdapter}",
+            clientMethod.getClientReference() + ".getSerializerAdapter()");
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{intermediate-type}",
+            clientMethod.getMethodPollingDetails().getIntermediateType().toString());
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{final-type}",
+            clientMethod.getMethodPollingDetails().getFinalType().toString());
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, ".setServiceVersion(null)", "");
+        return CodeNamer.linearReplace(pollingStrategy, ".setEndpoint(null)", "");
     }
 
     private String getSyncPollingStrategy(ClientMethod clientMethod, String contextParam) {
@@ -1562,16 +1556,21 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 }
             }
         }
-        return clientMethod.getMethodPollingDetails().getSyncPollingStrategy()
-                .replace("{httpPipeline}", clientMethod.getClientReference() + ".getHttpPipeline()")
-                .replace("{endpoint}", endpoint)
-                .replace("{context}", contextParam)
-                .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
-                .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-                .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-                .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
-                .replace(".setServiceVersion(null)", "")
-                .replace(".setEndpoint(null)", "");
+
+        String pollingStrategy = CodeNamer.linearReplace(clientMethod.getMethodPollingDetails().getSyncPollingStrategy(),
+                "{httpPipeline}", clientMethod.getClientReference() + ".getHttpPipeline()");
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{endpoint}", endpoint);
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{context}", contextParam);
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{serviceVersion}",
+            getServiceVersionValue(clientMethod));
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{serializerAdapter}",
+            clientMethod.getClientReference() + ".getSerializerAdapter()");
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{intermediate-type}",
+            clientMethod.getMethodPollingDetails().getIntermediateType().toString());
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, "{final-type}",
+            clientMethod.getMethodPollingDetails().getFinalType().toString());
+        pollingStrategy = CodeNamer.linearReplace(pollingStrategy, ".setServiceVersion(null)", "");
+        return CodeNamer.linearReplace(pollingStrategy, ".setEndpoint(null)", "");
     }
 
     protected void generateSendRequestAsync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {

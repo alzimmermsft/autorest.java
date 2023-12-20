@@ -7,12 +7,12 @@ import org.atteo.evo.inflector.English;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -212,7 +212,7 @@ public class CodeNamer {
             return null;
         }
 
-        return comment.replace("*/", "*&#47;");
+        return CodeNamer.linearReplace(comment, "*/", "*&#47;");
     }
 
     private static String formatCase(String name, boolean toLower) {
@@ -235,7 +235,7 @@ public class CodeNamer {
      * @return the name with invalid characters removed.
      */
     public static String removeInvalidCharacters(String name) {
-        return getValidName(name, '_', '-');
+        return getValidName(name, c -> c == '_' || c == '-');
     }
 
     /**
@@ -245,7 +245,7 @@ public class CodeNamer {
      * @param allowedCharacters the special characters that are allowed in the name.
      * @return the valid name.
      */
-    public static String getValidName(String name, char... allowedCharacters) {
+    public static String getValidName(String name, Predicate<Character> allowedCharacters) {
         String correctName = removeInvalidCharacters(name, allowedCharacters);
 
         // here we have only letters and digits or an empty String
@@ -430,17 +430,12 @@ public class CodeNamer {
         return name;
     }
 
-    private static String removeInvalidCharacters(String name, char... allowerCharacters) {
+    private static String removeInvalidCharacters(String name, Predicate<Character> allowedCharacters) {
         if (name == null || name.isEmpty()) {
             return name;
         }
 
-        BitSet allowed = new BitSet();
-        for (Character c : allowerCharacters) {
-            allowed.set(c);
-        }
-
-        return linearReplace(name, c -> Character.isLetterOrDigit(c) || allowed.get(c) ? null : "_");
+        return linearReplace(name, c -> Character.isLetterOrDigit(c) || allowedCharacters.test(c) ? null : "_");
     }
 
     private static String linearReplace(String str, Function<Character, String> replacer) {
@@ -477,6 +472,52 @@ public class CodeNamer {
 
         if (prevStart < strLen) {
             sb.append(str, prevStart, strLen);
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Replaces all occurrences of a target string with a replacement string.
+     * <p>
+     * If no occurrences of the target string are found, the original string is returned.
+     *
+     * @param str the string to replace occurrences in.
+     * @param target the target string to replace.
+     * @param replacement the replacement string.
+     * @return the string with all occurrences of the target string replaced with the replacement string.
+     */
+    public static String linearReplace(String str, String target, String replacement) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+
+        StringBuilder sb = null;
+        int prevStart = 0;
+        int foundIndex;
+
+        while ((foundIndex = str.indexOf(target, prevStart)) != -1) {
+            if (sb == null) {
+                int replacementDifference = replacement.length() - target.length();
+                if (replacementDifference <= 0) {
+                    sb = new StringBuilder(str.length());
+                } else {
+                    sb = new StringBuilder(str.length() + (replacementDifference * 8));
+                }
+            }
+
+            sb.append(str, prevStart, foundIndex);
+            sb.append(replacement);
+
+            prevStart = foundIndex + target.length();
+        }
+
+        if (sb == null) {
+            return str;
+        }
+
+        if (prevStart < str.length()) {
+            sb.append(str, prevStart, str.length());
         }
 
         return sb.toString();

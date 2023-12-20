@@ -4,7 +4,9 @@
 package com.azure.autorest.mapper;
 
 import com.azure.autorest.extension.base.model.codemodel.ScenarioStep;
+import com.azure.autorest.extension.base.model.codemodel.ScenarioTest;
 import com.azure.autorest.extension.base.model.codemodel.TestModel;
+import com.azure.autorest.extension.base.model.codemodel.TestScenario;
 import com.azure.autorest.extension.base.model.codemodel.TestScenarioStepType;
 import com.azure.autorest.model.clientmodel.ExampleLiveTestStep;
 import com.azure.autorest.model.clientmodel.LiveTestCase;
@@ -18,16 +20,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
- * A mapper to map test model to live tests.
+ * A mapper that maps a {@link TestModel} to a {@link List} of {@link LiveTests}.
  */
 public class LiveTestsMapper implements IMapper<TestModel, List<LiveTests>>{
 
     private static final LiveTestsMapper INSTANCE = new LiveTestsMapper();
 
+    /**
+     * Gets the global {@link LiveTestsMapper} instance.
+     *
+     * @return The global {@link LiveTestsMapper} instance.
+     */
     public static LiveTestsMapper getInstance() {
         return INSTANCE;
     }
@@ -37,34 +42,47 @@ public class LiveTestsMapper implements IMapper<TestModel, List<LiveTests>>{
         if (testModel.getScenarioTests() == null) {
             return new ArrayList<>();
         }
-        return testModel.getScenarioTests().stream().map(scenarioTest -> {
+
+        List<LiveTests> liveTestsList = new ArrayList<>();
+
+        for (ScenarioTest scenarioTest : testModel.getScenarioTests()) {
             LiveTests liveTests = new LiveTests(getFilename(scenarioTest.getFilePath()));
-            liveTests.addTestCases(scenarioTest.getScenarios().stream().map(testScenario -> {
-                LiveTestCase liveTestCase = new LiveTestCase(CodeNamer.toCamelCase(testScenario.getScenario()), testScenario.getDescription());
-                liveTestCase.addTestSteps(testScenario.getResolvedSteps().stream()
+
+            List<LiveTestCase> liveTestCases = new ArrayList<>();
+            for (TestScenario testScenario : scenarioTest.getScenarios()) {
+                LiveTestCase liveTestCase = new LiveTestCase(CodeNamer.toCamelCase(testScenario.getScenario()),
+                    testScenario.getDescription());
+                List<LiveTestStep> liveTestSteps = new ArrayList<>();
+                for (ScenarioStep scenarioStep : testScenario.getResolvedSteps()) {
                     // future work: support other step types, for now only support example file
-                    .filter(scenarioStep -> scenarioStep.getType() == TestScenarioStepType.REST_CALL &&
-                        scenarioStep.getExampleFile() != null)
-                    .map((Function<ScenarioStep, LiveTestStep>) scenarioStep -> {
-                        Map<String, Object> example = new HashMap<>();
-                        example.put("parameters", scenarioStep.getRequestParameters());
-                        XmsExampleWrapper exampleWrapper = new XmsExampleWrapper(example, scenarioStep.getOperationId(), scenarioStep.getExampleName());
-                        ProxyMethodExample proxyMethodExample = Mappers.getProxyMethodExampleMapper().map(exampleWrapper);
-                        return ExampleLiveTestStep.newBuilder()
-                            .operationId(scenarioStep.getOperationId())
-                            .description(scenarioStep.getDescription())
-                            .example(proxyMethodExample)
-                            .build();
-                    })
-                    .collect(Collectors.toList()));
-                return liveTestCase;
-            }).collect(Collectors.toList()));
-            return liveTests;
-        }).collect(Collectors.toList());
+                    if (scenarioStep.getType() != TestScenarioStepType.REST_CALL
+                        || scenarioStep.getExampleFile() == null) {
+                        continue;
+                    }
+
+                    Map<String, Object> example = new HashMap<>();
+                    example.put("parameters", scenarioStep.getRequestParameters());
+                    XmsExampleWrapper exampleWrapper = new XmsExampleWrapper(example, scenarioStep.getOperationId(),
+                        scenarioStep.getExampleName());
+                    ProxyMethodExample proxyMethodExample = Mappers.getProxyMethodExampleMapper().map(exampleWrapper);
+                    liveTestSteps.add(ExampleLiveTestStep.newBuilder()
+                        .operationId(scenarioStep.getOperationId())
+                        .description(scenarioStep.getDescription())
+                        .example(proxyMethodExample)
+                        .build());
+                }
+
+                liveTestCase.addTestSteps(liveTestSteps);
+            }
+
+            liveTests.addTestCases(liveTestCases);
+        }
+
+        return liveTestsList;
     }
 
     private static String getFilename(String filePath) {
-        String[] split = filePath.replace('\\', '/').split("/");
+        String[] split = CodeNamer.linearReplace(filePath, "\\", "/").split("/");
         String filename = split[split.length - 1];
         filename = filename.split("\\.")[0];
         return CodeNamer.toPascalCase(filename);

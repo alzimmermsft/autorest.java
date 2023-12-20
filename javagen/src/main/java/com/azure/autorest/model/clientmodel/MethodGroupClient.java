@@ -17,47 +17,47 @@ public class MethodGroupClient {
     /**
      * The name of the package.
      */
-    private String packageName;
+    private final String packageName;
     /**
      * The name of this client's class.
      */
-    private String className;
+    private final String className;
     /**
      * The name of this client's interface.
      */
-    private String interfaceName;
+    private final String interfaceName;
     /**
      * The interfaces that the client implements.
      */
-    private List<String> implementedInterfaces;
+    private final List<String> implementedInterfaces;
     /**
      * The REST API that this client will send requests to.
      */
-    private Proxy proxy;
+    private final Proxy proxy;
     /**
      * The name of the ServiceClient that contains this MethodGroupClient.
      */
-    private String serviceClientName;
+    private final String serviceClientName;
     /**
      * The type of this MethodGroupClient when it is used as a variable.
      */
-    private String variableType;
+    private final String variableType;
     /**
      * The variable name for any instances of this MethodGroupClient.
      */
-    private String variableName;
+    private final String variableName;
     /**
      * The client method overloads for this MethodGroupClient.
      */
-    private List<ClientMethod> clientMethods;
+    private final List<ClientMethod> clientMethods;
     /**
      * The interfaces that the client supports.
      */
-    private List<IType> supportedInterfaces;
+    private final List<IType> supportedInterfaces;
 
-    private String classBaseName;
+    private final String classBaseName;
 
-    private List<ServiceClientProperty> properties;
+    private final List<ServiceClientProperty> properties;
 
     /**
      * Create a new MethodGroupClient with the provided properties.
@@ -147,7 +147,7 @@ public class MethodGroupClient {
      */
     public final void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
         if (!settings.isFluent() && settings.isGenerateClientInterfaces()) {
-            imports.add(String.format("%1$s.%2$s", settings.getPackage(), getInterfaceName()));
+            imports.add(settings.getPackage() + "." + interfaceName);
         }
 
         for (IType type : supportedInterfaces) {
@@ -161,7 +161,7 @@ public class MethodGroupClient {
 
             if (settings.isGenerateClientInterfaces()) {
                 String interfacePackage = ClientModelUtil.getServiceClientInterfacePackageName();
-                imports.add(String.format("%1$s.%2$s", interfacePackage, this.getInterfaceName()));
+                imports.add(interfacePackage + "." + interfaceName);
             }
         }
 
@@ -321,18 +321,9 @@ public class MethodGroupClient {
         }
 
         public MethodGroupClient build() {
-            return new MethodGroupClient(packageName,
-                    className,
-                    interfaceName,
-                    implementedInterfaces,
-                    proxy,
-                    serviceClientName,
-                    variableType,
-                    variableName,
-                    clientMethods,
-                    supportedInterfaces,
-                    classBaseName,
-                    properties);
+            return new MethodGroupClient(packageName, className, interfaceName, implementedInterfaces, proxy,
+                serviceClientName, variableType, variableName, clientMethods, supportedInterfaces, classBaseName,
+                properties);
         }
     }
 }

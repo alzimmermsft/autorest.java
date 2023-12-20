@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ArrayMapper implements IMapper<ArraySchema, IType> {
     private static final ArrayMapper INSTANCE = new ArrayMapper();
-    Map<ArraySchema, IType> parsed = new ConcurrentHashMap<>();
+    private static final Map<ArraySchema, IType> PARSED = new ConcurrentHashMap<>();
 
     private ArrayMapper() {
     }
@@ -37,7 +37,7 @@ public class ArrayMapper implements IMapper<ArraySchema, IType> {
             return null;
         }
 
-        IType arrayType = parsed.get(sequenceType);
+        IType arrayType = PARSED.get(sequenceType);
         if (arrayType != null) {
             return arrayType;
         }
@@ -45,11 +45,10 @@ public class ArrayMapper implements IMapper<ArraySchema, IType> {
         IType mappedType = Mappers.getSchemaMapper().map(sequenceType.getElementType());
 
         // Choose IterableType or ListType depending on whether arrays should use Iterable.
-        arrayType = JavaSettings.getInstance().isUseIterable()
-            ? new IterableType(mappedType)
+        arrayType = JavaSettings.getInstance().isUseIterable() ? new IterableType(mappedType)
             : new ListType(mappedType);
 
-        parsed.put(sequenceType, arrayType);
+        PARSED.put(sequenceType, arrayType);
         return arrayType;
     }
 }

@@ -48,16 +48,17 @@ public class ClientParameterMapper implements IMapper<Parameter, ClientMethodPar
      * @return The {@link ClientMethodParameter}.
      */
     public ClientMethodParameter map(Parameter parameter, boolean isProtocolMethod) {
-        String name = parameter.getOriginalParameter() != null && parameter.getLanguage().getJava().getName().equals(parameter.getOriginalParameter().getLanguage().getJava().getName())
-                ? CodeNamer.toCamelCase(parameter.getOriginalParameter().getSchema().getLanguage().getJava().getName()) + CodeNamer.toPascalCase(parameter.getLanguage().getJava().getName())
-                : parameter.getLanguage().getJava().getName();
+        String name = parameter.getOriginalParameter() != null && parameter.getLanguage().getJava().getName()
+            .equals(parameter.getOriginalParameter().getLanguage().getJava().getName()) ?
+            CodeNamer.toCamelCase(parameter.getOriginalParameter().getSchema().getLanguage().getJava().getName())
+                + CodeNamer.toPascalCase(parameter.getLanguage().getJava().getName())
+            : parameter.getLanguage().getJava().getName();
         name = CodeNamer.getEscapedReservedClientMethodParameterName(name);
 
         JavaSettings settings = JavaSettings.getInstance();
-        ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder()
-                .name(name)
-                .required(parameter.isRequired())
-                .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT);
+        ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder().name(name)
+            .required(parameter.isRequired())
+            .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT);
         if (parameter.getProtocol() != null && parameter.getProtocol().getHttp() != null) {
             builder.requestParameterLocation(parameter.getProtocol().getHttp().getIn());
         }
@@ -73,8 +74,9 @@ public class ClientParameterMapper implements IMapper<Parameter, ClientMethodPar
         }
         builder.wireType(wireType);
 
-        builder.annotations(settings.isNonNullAnnotations() && parameter.isRequired() ?
-            Collections.singletonList(ClassType.NON_NULL) : new ArrayList<>());
+        builder.annotations(
+            settings.isNonNullAnnotations() && parameter.isRequired() ? Collections.singletonList(ClassType.NON_NULL)
+                : new ArrayList<>());
 
         boolean isConstant = false;
         String defaultValue = null;
@@ -89,9 +91,8 @@ public class ClientParameterMapper implements IMapper<Parameter, ClientMethodPar
 
         if (parameter.getExtensions() != null) {
             if (parameter.getExtensions().getXmsVersioningAdded() != null) {
-                builder.versioning(new Versioning.Builder()
-                        .added(parameter.getExtensions().getXmsVersioningAdded())
-                        .build());
+                builder.versioning(
+                    new Versioning.Builder().added(parameter.getExtensions().getXmsVersioningAdded()).build());
             }
         }
 

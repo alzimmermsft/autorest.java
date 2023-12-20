@@ -4,6 +4,7 @@
 package com.azure.autorest.model.clientmodel;
 
 import com.azure.autorest.util.ClientModelUtil;
+import com.azure.autorest.util.CodeNamer;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,7 +78,7 @@ public class ModelProperty {
         } else if (property instanceof ClientModelPropertyReference) {
             return ((ClientModelPropertyReference) property).getAllProperties().stream()
                     .map(ClientModelProperty::getSerializedName)
-                    .map(s -> s.replace(".", "\\\\."))
+                    .map(s -> CodeNamer.linearReplace(s, ".", "\\\\."))
                     .collect(Collectors.joining("."));
         } else {
             throw new IllegalStateException("Unknown subclass of ClientModelPropertyAccess: " + property.getClass().getName());

@@ -19,7 +19,7 @@ public class ArrayType implements IType {
     public static final ArrayType BYTE_ARRAY = new ArrayType(PrimitiveType.BYTE,
         defaultValueExpression -> {
             if (defaultValueExpression != null) {
-                return String.format("\"%1$s\".getBytes()", defaultValueExpression);
+                return "\"" + defaultValueExpression + "\".getBytes()";
             } else {
                 return JavaSettings.getInstance().isNullByteArrayMapsToEmptyArray() ? "EMPTY_BYTE_ARRAY" : "null";
             }
@@ -110,8 +110,8 @@ public class ArrayType implements IType {
     @Override
     public String jsonSerializationMethodCall(String jsonWriterName, String fieldName, String valueGetter) {
         return fieldName == null
-            ? String.format("%s.writeBinary(%s)", jsonWriterName, valueGetter)
-            : String.format("%s.writeBinaryField(\"%s\", %s)", jsonWriterName, fieldName, valueGetter);
+            ? jsonWriterName + ".writeBinary(" + valueGetter + ")"
+            : jsonWriterName + ".writeBinaryField(\"" + fieldName + "\", " + valueGetter + ")";
     }
 
     @Override

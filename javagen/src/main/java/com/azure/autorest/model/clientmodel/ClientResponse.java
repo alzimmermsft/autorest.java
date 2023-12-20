@@ -7,14 +7,15 @@ package com.azure.autorest.model.clientmodel;
  * The response that is returned by a ClientMethod.
  */
 public final class ClientResponse {
-    private String name;
-    private String packageName;
-    private String description;
-    private IType headersType;
-    private IType bodyType;
-    private String crossLanguageDefinitionId;
+    private final String name;
+    private final String packageName;
+    private final String description;
+    private final IType headersType;
+    private final IType bodyType;
+    private final String crossLanguageDefinitionId;
 
-    private ClientResponse(String name, String packageKeyword, String description, IType headersType, IType bodyType, String crossLanguageDefinitionId) {
+    private ClientResponse(String name, String packageKeyword, String description, IType headersType, IType bodyType,
+        String crossLanguageDefinitionId) {
         this.name = name;
         packageName = packageKeyword;
         this.description = description;
@@ -55,7 +56,6 @@ public final class ClientResponse {
         private IType bodyType;
 
         private String crossLanguageDefinitionId;
-
 
         public Builder name(String name) {
             this.name = name;

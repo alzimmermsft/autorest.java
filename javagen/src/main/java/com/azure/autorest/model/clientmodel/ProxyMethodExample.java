@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -60,11 +59,7 @@ public class ProxyMethodExample {
         public Object getUnescapedQueryValue() {
             Object unescapedValue = objectValue;
             if (objectValue instanceof String) {
-                try {
-                    unescapedValue = URLDecoder.decode((String) objectValue, StandardCharsets.UTF_8.name());
-                } catch (UnsupportedEncodingException e) {
-                    // NOOP
-                }
+                unescapedValue = URLDecoder.decode((String) objectValue, StandardCharsets.UTF_8);
             }
             return unescapedValue;
         }
@@ -72,13 +67,9 @@ public class ProxyMethodExample {
         @Override
         public String toString() {
             try {
-                return "ParameterValue{" +
-                        "objectValue=" + PRETTY_PRINTER.writeValueAsString(objectValue) +
-                        '}';
+                return "ParameterValue{objectValue=" + PRETTY_PRINTER.writeValueAsString(objectValue) + '}';
             } catch (JsonProcessingException e) {
-                return "ParameterValue{" +
-                        "objectValue=" + objectValue +
-                        '}';
+                return "ParameterValue{objectValue=" + objectValue + '}';
             }
         }
 
@@ -105,9 +96,7 @@ public class ProxyMethodExample {
                 Map<String, Object> responseMap = (Map<String, Object>) response;
                 if (responseMap.containsKey("headers") && responseMap.get("headers") instanceof Map) {
                     Map<String, Object> headersMap = (Map<String, Object>) responseMap.get("headers");
-                    headersMap.forEach((header, value) -> {
-                        httpHeaders.add(header, value.toString());
-                    });
+                    headersMap.forEach((header, value) -> httpHeaders.add(header, value.toString()));
                 }
                 this.body = responseMap.getOrDefault("body", null);
             } else {
@@ -162,17 +151,10 @@ public class ProxyMethodExample {
         @Override
         public String toString() {
             try {
-                return "Response{" +
-                        "statusCode=" + statusCode +
-                        ", httpHeaders=" + httpHeaders +
-                        ", body=" + PRETTY_PRINTER.writeValueAsString(body) +
-                        '}';
+                return "Response{statusCode=" + statusCode + ", httpHeaders=" + httpHeaders + ", body="
+                    + PRETTY_PRINTER.writeValueAsString(body) + '}';
             } catch (JsonProcessingException e) {
-                return "Response{" +
-                        "statusCode=" + statusCode +
-                        ", httpHeaders=" + httpHeaders +
-                        ", body=" + body +
-                        '}';
+                return "Response{statusCode=" + statusCode + ", httpHeaders=" + httpHeaders + ", body=" + body + '}';
             }
         }
     }

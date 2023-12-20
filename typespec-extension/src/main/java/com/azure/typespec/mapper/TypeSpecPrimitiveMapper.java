@@ -10,10 +10,18 @@ import com.azure.autorest.model.clientmodel.ClassType;
 import com.azure.autorest.model.clientmodel.IType;
 import com.azure.autorest.model.clientmodel.PrimitiveType;
 
+/**
+ * A mapper that maps a primitive type in {@link PrimitiveSchema} to {@link IType}.
+ */
 public class TypeSpecPrimitiveMapper extends PrimitiveMapper {
 
     private static final PrimitiveMapper INSTANCE = new TypeSpecPrimitiveMapper();
 
+    /**
+     * Gets the global {@link PrimitiveMapper} instance.
+     *
+     * @return the global {@link PrimitiveMapper} instance.
+     */
     public static PrimitiveMapper getInstance() {
         return INSTANCE;
     }

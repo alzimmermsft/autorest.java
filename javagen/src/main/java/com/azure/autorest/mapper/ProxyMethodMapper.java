@@ -39,7 +39,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,26 +50,28 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
     private final Logger logger = new PluginLogger(Javagen.getPluginInstance(), ProxyMethodMapper.class);
 
-    private static final List<IType> UNIX_TIME_TYPES = Arrays.asList(
-            PrimitiveType.UNIX_TIME_LONG,
-            ClassType.UNIX_TIME_LONG,
-            ClassType.UNIX_TIME_DATE_TIME);
-    private static final List<IType> RETURN_VALUE_WIRE_TYPE_OPTIONS =
-            Stream.concat(Stream.of(
-                    ClassType.BASE_64_URL,
-                    ClassType.DATE_TIME_RFC_1123,
-                    PrimitiveType.DURATION_LONG,
-                    PrimitiveType.DURATION_DOUBLE,
-                    ClassType.DURATION_LONG,
-                    ClassType.DURATION_DOUBLE),
-                    UNIX_TIME_TYPES.stream()).collect(Collectors.toList());
+    private static final List<IType> UNIX_TIME_TYPES = Arrays.asList(PrimitiveType.UNIX_TIME_LONG,
+        ClassType.UNIX_TIME_LONG, ClassType.UNIX_TIME_DATE_TIME);
+    private static final List<IType> RETURN_VALUE_WIRE_TYPE_OPTIONS = Stream.concat(Stream.of(ClassType.BASE_64_URL,
+            ClassType.DATE_TIME_RFC_1123, PrimitiveType.DURATION_LONG, PrimitiveType.DURATION_DOUBLE,
+            ClassType.DURATION_LONG, ClassType.DURATION_DOUBLE), UNIX_TIME_TYPES.stream())
+        .collect(Collectors.toList());
+
     private static final ProxyMethodMapper INSTANCE = new ProxyMethodMapper();
 
-    private final Map<Request, List<ProxyMethod>> parsed = new ConcurrentHashMap<>();
+    private static final Map<Request, List<ProxyMethod>> PARSED = new ConcurrentHashMap<>();
 
+    /**
+     * Creates an instance of the {@link ProxyMethodMapper} class.
+     */
     protected ProxyMethodMapper() {
     }
 
+    /**
+     * Gets the global {@link ProxyMethodMapper} instance.
+     *
+     * @return the global {@link ProxyMethodMapper} instance.
+     */
     public static ProxyMethodMapper getInstance() {
         return INSTANCE;
     }
@@ -82,10 +83,10 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         String operationName = operation.getLanguage().getJava().getName();
         ProxyMethod.Builder builder = createProxyMethodBuilder()
-                .description(operation.getDescription())
-                .name(operationName)
-                .specialHeaders(operation.getSpecialHeaders())
-                .isResumable(false);
+            .description(operation.getDescription())
+            .name(operationName)
+            .specialHeaders(operation.getSpecialHeaders())
+            .isResumable(false);
 
         String operationId = operation.getOperationId();
         if (CoreUtils.isNullOrEmpty(operationId) && operation.getLanguage() != null && operation.getLanguage().getDefault() != null) {  // operationId or language.default could be null for generated method like "listNext"
@@ -99,7 +100,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         List<Integer> expectedStatusCodes = operation.getResponses().stream()
                 .flatMap(r -> r.getProtocol().getHttp().getStatusCodes().stream())
-                .map(s -> s.replace("'", ""))
+                .map(s -> CodeNamer.linearReplace(s, "'", ""))
                 .map(Integer::parseInt)
                 .sorted().collect(Collectors.toList());
         builder.responseExpectedStatusCodes(expectedStatusCodes);
@@ -115,12 +116,12 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         buildUnexpectedResponseExceptionTypes(builder, operation, expectedStatusCodes, settings);
 
-        AtomicReference<IType> responseBodyTypeReference = new AtomicReference<>(responseBodyType);
+        IType responseBodyTypeReference = responseBodyType;
         builder.returnValueWireType(RETURN_VALUE_WIRE_TYPE_OPTIONS
-                .stream()
-                .filter(type -> responseBodyTypeReference.get().contains(type))
-                .findFirst()
-                .orElse(null));
+            .stream()
+            .filter(responseBodyTypeReference::contains)
+            .findFirst()
+            .orElse(null));
 
         Set<String> responseContentTypes = operation.getResponses().stream()
                 .filter(r -> r.getProtocol() != null && r.getProtocol().getHttp() != null && r.getProtocol().getHttp().getMediaTypes() != null)
@@ -138,8 +139,8 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         Set<List<String>> methodSignatures = new HashSet<>();
 
         for (Request request : requests) {
-            if (parsed.containsKey(request)) {
-                result.put(request, parsed.get(request));
+            if (PARSED.containsKey(request)) {
+                result.put(request, PARSED.get(request));
                 continue;
             }
 
@@ -268,7 +269,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                 proxyMethods.removeAll(asyncProxyMethods);
             }
             result.put(request, proxyMethods);
-            parsed.put(request, proxyMethods);
+            PARSED.put(request, proxyMethods);
         }
         return result;
     }
@@ -298,16 +299,14 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     }
 
     private void addSyncProxyMethods(List<ProxyMethod> proxyMethods) {
-        List<ProxyMethod> syncProxyMethods = new ArrayList<>();
         for (ProxyMethod asyncProxyMethod : proxyMethods) {
             if (asyncProxyMethod.getParameters()
                     .stream()
                     .anyMatch(param -> param.getClientType() == GenericType.FLUX_BYTE_BUFFER)) {
                 continue;
             }
-            syncProxyMethods.add(asyncProxyMethod.toSync());
+            proxyMethods.add(asyncProxyMethod.toSync());
         }
-        proxyMethods.addAll(syncProxyMethods);
     }
 
     protected boolean operationGroupNotNull(Operation operation, JavaSettings settings) {
@@ -610,11 +609,10 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                                          String requestContentType,
                                          Set<List<String>> methodSignatures) {
         String name = operationName;
-        List<String> methodSignature = new ArrayList<>();
+        List<String> methodSignature = new ArrayList<>(parameters.size() + 1);
         methodSignature.add(operationName);
-        methodSignature.addAll(parameters.stream()
-                .map(p -> p.getWireType().toString())   // simple class name should be enough?
-                .collect(Collectors.toList()));
+        parameters.stream().map(p -> p.getWireType().toString())   // simple class name should be enough?
+            .forEach(methodSignature::add);
         if (methodSignatures.contains(methodSignature)) {
             // got a conflict on method signature
             String conflictMethodSignature = methodSignature.toString();

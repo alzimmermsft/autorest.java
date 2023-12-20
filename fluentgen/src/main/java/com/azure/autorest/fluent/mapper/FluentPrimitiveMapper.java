@@ -9,10 +9,18 @@ import com.azure.autorest.mapper.PrimitiveMapper;
 import com.azure.autorest.model.clientmodel.ClassType;
 import com.azure.autorest.model.clientmodel.IType;
 
+/**
+ * A mapper that maps a primitive type in {@link PrimitiveSchema} to {@link IType}.
+ */
 public class FluentPrimitiveMapper extends PrimitiveMapper {
 
     private static final FluentPrimitiveMapper INSTANCE = new FluentPrimitiveMapper();
 
+    /**
+     * Gets the global {@link PrimitiveMapper} instance.
+     *
+     * @return the global {@link PrimitiveMapper} instance.
+     */
     public static FluentPrimitiveMapper getInstance() {
         return INSTANCE;
     }
@@ -22,14 +30,15 @@ public class FluentPrimitiveMapper extends PrimitiveMapper {
         if (primaryType == null) {
             return null;
         }
-        if (parsed.containsKey(primaryType)) {
-            return parsed.get(primaryType);
+
+        IType result = PARSED.get(primaryType);
+        if (result != null) {
+            return result;
         }
+
         if (primaryType.getType() == Schema.AllSchemaTypes.CREDENTIAL) {
             // swagger is "format": "password", which mostly serve as a hint
-            IType type = ClassType.STRING;
-            parsed.put(primaryType, type);
-            return type;
+            return PARSED.computeIfAbsent(primaryType, ignored -> ClassType.STRING);
         } else {
             return super.map(primaryType);
         }

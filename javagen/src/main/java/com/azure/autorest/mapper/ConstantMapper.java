@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConstantMapper implements IMapper<ConstantSchema, IType> {
     private static final ConstantMapper INSTANCE = new ConstantMapper();
-    Map<ConstantSchema, IType> parsed = new ConcurrentHashMap<>();
+    private static final Map<ConstantSchema, IType> PARSED = new ConcurrentHashMap<>();
 
     private ConstantMapper() {
     }
@@ -34,14 +34,11 @@ public class ConstantMapper implements IMapper<ConstantSchema, IType> {
             return null;
         }
 
-        IType constantType = parsed.get(constantSchema);
+        IType constantType = PARSED.get(constantSchema);
         if (constantType != null) {
             return constantType;
         }
 
-        constantType = Mappers.getSchemaMapper().map(constantSchema.getValueType());
-        parsed.put(constantSchema, constantType);
-
-        return constantType;
+        return PARSED.computeIfAbsent(constantSchema, cs -> Mappers.getSchemaMapper().map(cs.getValueType()));
     }
 }

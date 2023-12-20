@@ -7,13 +7,13 @@ package com.azure.autorest.model.clientmodel;
  * A page class that contains results that are received from a service request.
  */
 public class PageDetails {
-    public String packageName;
-    private String nextLinkName;
-    private String itemName;
-    private String className;
+    private final String packageName;
+    private final String nextLinkName;
+    private final String itemName;
+    private final String className;
 
     public PageDetails(String packageKeyword, String nextLinkName, String itemName, String className) {
-        packageName = packageKeyword;
+        this.packageName = packageKeyword;
         this.nextLinkName = nextLinkName;
         this.itemName = itemName;
         this.className = className;

@@ -145,7 +145,7 @@ public class FluentUtils {
         String artifactId;
         if (packageName.startsWith("com.azure.resourcemanager")) {
             // if namespace looks good, convert it to artifactId directly
-            artifactId = packageName.substring("com.".length()).replace(".", "-");
+            artifactId = CodeNamer.linearReplace(packageName.substring("com.".length()), ".", "-");
         } else {
             String packageLastName = getPackageLastName(packageName).toLowerCase(Locale.ROOT);
             artifactId = String.format("azure-resourcemanager-%1$s-generated", packageLastName);

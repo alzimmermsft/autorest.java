@@ -4,6 +4,7 @@
 package com.azure.autorest.model.clientmodel;
 
 import com.azure.autorest.extension.base.plugin.JavaSettings;
+import com.azure.autorest.util.CodeNamer;
 
 import java.util.Set;
 
@@ -111,9 +112,11 @@ public class Annotation {
                     .name(clazz.getSimpleName());
 
             if (!JavaSettings.getInstance().isBranded()) {
-                this.packageName(clazz.getPackage().getName()
-                        .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.GENERIC_CORE_PACKAGE_NAME)
-                        .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.GENERIC_JSON_PACKAGE_NAME));
+                String packageName = CodeNamer.linearReplace(clazz.getPackage().getName(),
+                    ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.GENERIC_CORE_PACKAGE_NAME);
+                packageName = CodeNamer.linearReplace(packageName, ExternalPackage.AZURE_JSON_PACKAGE_NAME,
+                    ExternalPackage.GENERIC_JSON_PACKAGE_NAME);
+                this.packageName(packageName);
             }
 
             return this;

@@ -41,15 +41,28 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.azure.autorest.util.CodeNamer.toPascalCase;
+
+/**
+ * A mapper that maps a {@link ObjectSchema} to a {@link ClientModel}.
+ */
 public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
     private static final ModelMapper INSTANCE = new ModelMapper();
-    private final ClientModels serviceModels = ClientModels.getInstance();
+    private static final ClientModels SERVICE_MODELS = ClientModels.getInstance();
 
     private final static String PROPERTY_NAME_ADDITIONAL_PROPERTIES = "additionalProperties";
 
+    /**
+     * Creates an instance of the {@link ModelMapper} class.
+     */
     protected ModelMapper() {
     }
 
+    /**
+     * Gets the global {@link ModelMapper} instance.
+     *
+     * @return the global {@link ModelMapper} instance.
+     */
     public static ModelMapper getInstance() {
         return INSTANCE;
     }
@@ -61,13 +74,12 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
 
         ClassType modelType = objectMapper.map(compositeType);
         String modelName = modelType.getName();
-        ClientModel result = serviceModels.getModel(modelType.getName());
+        ClientModel result = SERVICE_MODELS.getModel(modelType.getName());
         if (result == null && !ObjectMapper.isPlainObject(compositeType)) {
             Set<ImplementationDetails.Usage> usages = SchemaUtil.mapSchemaContext(compositeType.getUsage());
             if (isPredefinedModel(modelType)) {
                 // TODO (weidxu): a more consistent handling of external model for all data-plane
                 if (settings.isDataPlaneClient()) {
-                    usages = new HashSet<>(usages);
                     usages.add(ImplementationDetails.Usage.EXTERNAL);
                 } else {
                     // abort handling external model, if not DPG
@@ -114,15 +126,14 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
             if (!parentsNeedFlatten.isEmpty()) {
                 // Take properties from base class of multiple inheritance as properties of this class.
                 for (ObjectSchema parent : parentsNeedFlatten) {
-                    compositeTypeProperties.addAll(parent.getProperties().stream()
-                        .filter(p -> !p.isIsDiscriminator())
-                        .collect(Collectors.toList()));
+                    parent.getProperties().stream().filter(p -> !p.isIsDiscriminator())
+                        .forEach(compositeTypeProperties::add);
                     if (parent.getParents() != null) {
-                        compositeTypeProperties.addAll(parent.getParents().getAll().stream()
+                        parent.getParents().getAll().stream()
                             .filter(s -> s instanceof ObjectSchema)
                             .flatMap(s -> ((ObjectSchema) s).getProperties().stream())
                             .filter(p -> !p.isIsDiscriminator())
-                            .collect(Collectors.toList()));
+                            .forEach(compositeTypeProperties::add);
                     }
                 }
             }
@@ -251,14 +262,14 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
                 String discriminatorSerializedName = SchemaUtil.getDiscriminatorSerializedName(compositeType);
                 // Only escape the discriminator if the model will be flattened.
                 String polymorphicDiscriminator = needsFlatten
-                    ? discriminatorSerializedName.replace(".", "\\\\.")
+                    ? CodeNamer.linearReplace(discriminatorSerializedName, ".", "\\\\.")
                     : discriminatorSerializedName;
 
                 builder.polymorphicDiscriminator(polymorphicDiscriminator);
 
                 ClientModelProperty discriminatorProperty = createDiscriminatorProperty(
                     settings, hasChildren, compositeType,
-                    annotationArgs -> annotationArgs.replace(discriminatorSerializedName, polymorphicDiscriminator),
+                    annotationArgs -> CodeNamer.linearReplace(annotationArgs, discriminatorSerializedName, polymorphicDiscriminator),
                     polymorphicDiscriminator);
 
                 if (discriminatorProperty != null) {
@@ -309,7 +320,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
             builder.crossLanguageDefinitionId(compositeType.getCrossLanguageDefinitionId());
 
             result = builder.build();
-            serviceModels.addModel(result);
+            SERVICE_MODELS.addModel(result);
         }
 
         return result;
@@ -457,11 +468,10 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
             List<ObjectSchema> objectSchemaAndParents = new ArrayList<>();
             objectSchemaAndParents.add(compositeType);
             if (compositeType.getParents() != null && compositeType.getParents().getAll() != null) {
-                objectSchemaAndParents.addAll(
-                    compositeType.getParents().getAll().stream()
-                        .filter(p -> p instanceof ObjectSchema)
-                        .map(p -> (ObjectSchema) p)
-                        .collect(Collectors.toList()));
+                compositeType.getParents().getAll().stream()
+                    .filter(p -> p instanceof ObjectSchema)
+                    .map(p -> (ObjectSchema) p)
+                    .forEach(objectSchemaAndParents::add);
             }
             // gather property names for disambiguate
             Set<String> propertyNames = objectSchemaAndParents.stream()
@@ -469,7 +479,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
                 .filter(p -> p.getExtensions() == null || !p.getExtensions().isXmsClientFlatten())
                 .map(p -> p.getLanguage().getJava().getName())
                 .collect(Collectors.toSet());
-            propertyNames.addAll(existingPropertyReferences.stream().map(ClientModelPropertyReference::getName).collect(Collectors.toList()));
+            existingPropertyReferences.stream().map(ClientModelPropertyReference::getName).forEach(propertyNames::add);
             // additional properties
             if (compositeType.getParents() != null && compositeType.getParents().getAll() != null
                 && compositeType.getParents().getAll().stream().anyMatch(s -> s instanceof DictionarySchema)) {
@@ -571,13 +581,12 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
         }
     }
 
-    private static String disambiguatePropertyNameOfFlattenedSchema(Set<String> propertyNames, String originalFlattenedPropertyName, String propertyName) {
-        String ret = propertyName;
-        if (propertyNames.contains(propertyName)) {
-            // follow pattern from m4
-            ret = propertyName + CodeNamer.toPascalCase(originalFlattenedPropertyName) + CodeNamer.toPascalCase(propertyName);
-        }
-        return ret;
+    private static String disambiguatePropertyNameOfFlattenedSchema(Set<String> propertyNames,
+        String originalFlattenedPropertyName, String propertyName) {
+        // follow pattern from m4
+        return propertyNames.contains(propertyName)
+            ? propertyName + toPascalCase(originalFlattenedPropertyName) + toPascalCase(propertyName)
+            : propertyName;
     }
 
     private static void processMultipartFormDataProperties(List<ClientModelProperty> properties) {
@@ -589,19 +598,19 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel> {
                 // replace byte[] with BinaryData
                 iterator.remove();
                 iterator.add(property.newBuilder()
-                        .wireType(ClassType.BINARY_DATA)
-                        .clientType(ClassType.BINARY_DATA)
-                        .build());
+                    .wireType(ClassType.BINARY_DATA)
+                    .clientType(ClassType.BINARY_DATA)
+                    .build());
 
                 // add (optional) filename property
                 iterator.add(property.newBuilder()
-                        .name(property.getName() + ClientModelUtil.FILENAME_SUFFIX)
-                        .defaultValue(ClassType.STRING.defaultValueExpression(property.getSerializedName()))
-                        .description("The filename for " + property.getName())
-                        .wireType(ClassType.STRING)
-                        .clientType(ClassType.STRING)
-                        .required(false)
-                        .build());
+                    .name(property.getName() + ClientModelUtil.FILENAME_SUFFIX)
+                    .defaultValue(ClassType.STRING.defaultValueExpression(property.getSerializedName()))
+                    .description("The filename for " + property.getName())
+                    .wireType(ClassType.STRING)
+                    .clientType(ClassType.STRING)
+                    .required(false)
+                    .build());
             }
         }
     }

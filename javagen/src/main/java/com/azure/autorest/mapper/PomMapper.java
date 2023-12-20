@@ -11,10 +11,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+/**
+ * A mapper that maps a {@link Project} to {@link Pom}.
+ */
 public class PomMapper implements IMapper<Project, Pom> {
 
+    /**
+     * The suffix for test dependency.
+     */
     protected static final String TEST_SUFFIX = ":test";
 
     @Override
@@ -39,31 +44,30 @@ public class PomMapper implements IMapper<Project, Pom> {
         List<String> dependencyIdentifiers = new ArrayList<>();
         if (JavaSettings.getInstance().isStreamStyleSerialization()) {
             addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                    Project.Dependency.AZURE_JSON, false);
+                Project.Dependency.AZURE_JSON, false);
             addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                    Project.Dependency.AZURE_XML, false);
+                Project.Dependency.AZURE_XML, false);
         }
+        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.AZURE_CORE, false);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.AZURE_CORE, false);
+            Project.Dependency.AZURE_CORE_HTTP_NETTY, false);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.AZURE_CORE_HTTP_NETTY, false);
+            Project.Dependency.JUNIT_JUPITER_API, true);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.JUNIT_JUPITER_API, true);
+            Project.Dependency.JUNIT_JUPITER_ENGINE, true);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.JUNIT_JUPITER_ENGINE, true);
+            Project.Dependency.MOCKITO_CORE, true);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.MOCKITO_CORE, true);
+            Project.Dependency.AZURE_CORE_TEST, true);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.AZURE_CORE_TEST, true);
+            Project.Dependency.AZURE_IDENTITY, true);
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.AZURE_IDENTITY, true);
-        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.SLF4J_SIMPLE, true);
+            Project.Dependency.SLF4J_SIMPLE, true);
 
         // merge dependencies in POM and dependencies added above
-        dependencyIdentifiers.addAll(project.getPomDependencyIdentifiers().stream()
-                .filter(dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
-                .collect(Collectors.toList()));
+        project.getPomDependencyIdentifiers().stream()
+            .filter(dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
+            .forEach(dependencyIdentifiers::add);
 
         pom.setDependencyIdentifiers(dependencyIdentifiers);
 
@@ -89,15 +93,13 @@ public class PomMapper implements IMapper<Project, Pom> {
         Set<String> addedDependencyPrefixes = new HashSet<>();
         List<String> dependencyIdentifiers = new ArrayList<>();
         // for generic pom, stream style is always true
-        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.GENERIC_CORE, false);
-        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes,
-                Project.Dependency.GENERIC_JSON, false);
+        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.GENERIC_CORE, false);
+        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.GENERIC_JSON, false);
 
         // merge dependencies in POM and dependencies added above
-        dependencyIdentifiers.addAll(project.getPomDependencyIdentifiers().stream()
-                .filter(dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
-                .collect(Collectors.toList()));
+        project.getPomDependencyIdentifiers().stream()
+            .filter(dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
+            .forEach(dependencyIdentifiers::add);
 
         pom.setDependencyIdentifiers(dependencyIdentifiers);
         pom.setRequireCompilerPlugins(true);
@@ -105,7 +107,7 @@ public class PomMapper implements IMapper<Project, Pom> {
     }
 
     protected static void addDependencyIdentifier(List<String> dependencyIdentifiers, Set<String> prefixes,
-                                                Project.Dependency dependency, boolean isTestScope) {
+        Project.Dependency dependency, boolean isTestScope) {
         prefixes.add(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":");
         dependencyIdentifiers.add(dependency.getDependencyIdentifier() + (isTestScope ? TEST_SUFFIX : ""));
     }

@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
     private static final ChoiceMapper INSTANCE = new ChoiceMapper();
-    Map<ChoiceSchema, IType> parsed = new ConcurrentHashMap<>();
+    private static final Map<ChoiceSchema, IType> PARSED = new ConcurrentHashMap<>();
 
     private ChoiceMapper() {
     }
@@ -35,18 +35,15 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
             return null;
         }
 
-        IType choiceType = parsed.get(enumType);
+        IType choiceType = PARSED.get(enumType);
         if (choiceType != null) {
             return choiceType;
         }
 
-        choiceType = createChoiceType(enumType);
-        parsed.put(enumType, choiceType);
-
-        return choiceType;
+        return PARSED.computeIfAbsent(enumType, ChoiceMapper::createChoiceType);
     }
 
-    private IType createChoiceType(ChoiceSchema enumType) {
+    private static IType createChoiceType(ChoiceSchema enumType) {
         return MapperUtils.createEnumType(enumType, true);
     }
 }

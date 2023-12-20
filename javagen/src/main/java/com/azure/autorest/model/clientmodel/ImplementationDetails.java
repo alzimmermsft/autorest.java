@@ -5,8 +5,8 @@ package com.azure.autorest.model.clientmodel;
 
 import com.azure.autorest.extension.base.model.codemodel.SchemaContext;
 
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -108,18 +108,38 @@ public class ImplementationDetails {
         }
 
         /**
-         * Get the Usage instance from the string value.
+         * Get the Usage instance from the SchemaContext.
          *
-         * @param value the string value.
+         * @param schemaContext the SchemaContext.
          * @return the Usage instance.
-         * @throws IllegalArgumentException thrown if the string value doesn't match any Usage.
+         * @throws IllegalArgumentException thrown if the SchemaContext doesn't match any Usage.
          */
-        public static Usage fromValue(String value) {
-            Usage constant = CONSTANTS.get(value);
-            if (constant == null) {
-                throw new IllegalArgumentException(value);
-            } else {
-                return constant;
+        public static Usage fromSchemaContext(SchemaContext schemaContext) {
+            if (schemaContext == null) {
+                throw new IllegalArgumentException("schemaContext cannot be null.");
+            }
+
+            switch (schemaContext) {
+                case INPUT:
+                    return Usage.INPUT;
+                case OUTPUT:
+                    return Usage.OUTPUT;
+                case EXCEPTION:
+                    return Usage.EXCEPTION;
+                case PUBLIC:
+                    return Usage.PUBLIC;
+                case PAGED:
+                    return Usage.PAGED;
+                case ANONYMOUS:
+                    return Usage.ANONYMOUS;
+                case INTERNAL:
+                    return Usage.INTERNAL;
+                case JSON_MERGE_PATCH:
+                    return Usage.JSON_MERGE_PATCH;
+                case MULTIPART_FORM_DATA:
+                    return Usage.MULTIPART_FORM_DATA;
+                default:
+                    throw new IllegalArgumentException("Unknown schemaContext: " + schemaContext);
             }
         }
     }
@@ -221,7 +241,7 @@ public class ImplementationDetails {
      */
     public static final class Builder {
         private boolean implementationOnly = false;
-        private Set<Usage> usages = new HashSet<>();
+        private Set<Usage> usages = EnumSet.noneOf(Usage.class);
         private String comment;
 
         /**

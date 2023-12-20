@@ -20,6 +20,9 @@ import com.azure.autorest.util.CodeNamer;
 import com.azure.autorest.util.SchemaUtil;
 import com.azure.core.util.serializer.CollectionFormat;
 
+/**
+ * A mapper that maps a {@link Parameter} to a {@link ProxyMethodParameter}.
+ */
 public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMethodParameter> {
 
     private static final CustomProxyParameterMapper INSTANCE = new CustomProxyParameterMapper();
@@ -27,6 +30,11 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
     private CustomProxyParameterMapper() {
     }
 
+    /**
+     * Gets the global {@link CustomProxyParameterMapper} instance.
+     *
+     * @return The global {@link CustomProxyParameterMapper} instance.
+     */
     public static CustomProxyParameterMapper getInstance() {
         return INSTANCE;
     }
@@ -104,7 +112,7 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
 
         String parameterDescription = parameter.getDescription();
         if (parameterDescription == null || parameterDescription.isEmpty()) {
-            parameterDescription = String.format("the %s value", clientType);
+            parameterDescription = "the " + clientType + " value";
         }
         builder.description(parameterDescription);
 
@@ -134,7 +142,7 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
                     clientPropertyName = CodeNamer.toCamelCase(clientPropertyName);
                 }
             }
-            parameterReference = String.format("%s.%s%s()", caller, prefix, clientPropertyName);
+            parameterReference = caller + "." + prefix + clientPropertyName + "()";
         }
         builder.parameterReference(parameterReference);
 
@@ -157,10 +165,10 @@ public class CustomProxyParameterMapper implements IMapper<Parameter, ProxyMetho
                     collectionFormat = CollectionFormat.CSV;
             }
         }
-        if (collectionFormat == null && clientType instanceof ListType
-                && ClassType.STRING == wireType) {
+        if (collectionFormat == null && clientType instanceof ListType && ClassType.STRING == wireType) {
             collectionFormat = CollectionFormat.CSV;
         }
+
         builder.collectionFormat(collectionFormat);
         builder.explode(parameter.getProtocol().getHttp().getExplode());
 

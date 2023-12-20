@@ -110,7 +110,7 @@ public class ClientMethodParameter extends MethodParameter {
      */
     public final String getDeclaration() {
         return getAnnotations().stream().map(annotation -> "@" + annotation.getName()).collect(Collectors.joining(""))
-            + (isFinal() ? "final " : "") + String.format("%1$s %2$s", getClientType(), getName());
+            + (isFinal() ? "final " : "") + getClientType() + " " + getName();
     }
 
     /**

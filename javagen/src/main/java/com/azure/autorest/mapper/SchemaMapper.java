@@ -19,13 +19,21 @@ import com.azure.autorest.model.clientmodel.IType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A mapper that maps a schema in {@link Schema} to {@link IType}.
+ */
 public class SchemaMapper implements IMapper<Schema, IType> {
     private static final SchemaMapper INSTANCE = new SchemaMapper();
-    Map<Schema, IType> parsed = new ConcurrentHashMap<>();
+    private static final Map<Schema, IType> PARSED = new ConcurrentHashMap<>();
 
     private SchemaMapper() {
     }
 
+    /**
+     * Gets the global {@link SchemaMapper} instance.
+     *
+     * @return the global {@link SchemaMapper} instance.
+     */
     public static SchemaMapper getInstance() {
         return INSTANCE;
     }
@@ -36,24 +44,21 @@ public class SchemaMapper implements IMapper<Schema, IType> {
             return null;
         }
 
-        IType schemaType = parsed.get(value);
+        IType schemaType = PARSED.get(value);
         if (schemaType != null) {
             return schemaType;
         }
 
-        schemaType = createSchemaType(value);
-        parsed.put(value, schemaType);
-
-        return schemaType;
+        return PARSED.computeIfAbsent(value, this::createSchemaType);
     }
 
     private IType createSchemaType(Schema value) {
         if (value instanceof PrimitiveSchema) {
             return Mappers.getPrimitiveMapper().map((PrimitiveSchema) value);
+        } else if (value instanceof SealedChoiceSchema) { // Check SealedChoiceSchema first as it is an instanceof ChoiceSchema
+            return Mappers.getSealedChoiceMapper().map((SealedChoiceSchema) value);
         } else if (value instanceof ChoiceSchema) {
             return Mappers.getChoiceMapper().map((ChoiceSchema) value);
-        } else if (value instanceof SealedChoiceSchema) {
-            return Mappers.getSealedChoiceMapper().map((SealedChoiceSchema) value);
         } else if (value instanceof ArraySchema) {
             return Mappers.getArrayMapper().map((ArraySchema) value);
         } else if (value instanceof DictionarySchema) {
@@ -69,8 +74,8 @@ public class SchemaMapper implements IMapper<Schema, IType> {
         } else if(value instanceof OrSchema) {
             return Mappers.getUnionMapper().map((OrSchema) value);
         } else {
-            throw new UnsupportedOperationException("Cannot find a mapper for schema type " + value.getClass()
-                + ". Key: " + value.get$key());
+            throw new UnsupportedOperationException(
+                "Cannot find a mapper for schema type " + value.getClass() + ". Key: " + value.get$key());
         }
     }
 }

@@ -7,12 +7,12 @@ import org.atteo.evo.inflector.English;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -181,13 +181,14 @@ public class CodeNamer {
      * @return the name with invalid characters removed.
      */
     public static String removeInvalidCharacters(String name) {
-        String correctName = removeInvalidCharacters(name, '_', '-');
+        Predicate<Character> allowedCharacters = c -> c == '_' || c == '-';
+        String correctName = removeInvalidCharacters(name, allowedCharacters);
 
         // here we have only letters and digits or an empty String
         if (correctName == null || correctName.isEmpty()
             || (correctName.charAt(0) < 128 && BASIC_LATIN_CHARACTERS[correctName.charAt(0)] != null)) {
             correctName = removeInvalidCharacters(linearReplace(name, c -> c < 128 ? BASIC_LATIN_CHARACTERS[c] : null),
-                '_', '-');
+                allowedCharacters);
         }
 
         // if it is still empty String, throw
@@ -311,17 +312,12 @@ public class CodeNamer {
         return name;
     }
 
-    private static String removeInvalidCharacters(String name, char... allowedCharacters) {
+    private static String removeInvalidCharacters(String name, Predicate<Character> allowedCharacters) {
         if (name == null || name.isEmpty()) {
             return name;
         }
 
-        BitSet allowed = new BitSet();
-        for (Character c : allowedCharacters) {
-            allowed.set(c);
-        }
-
-        return linearReplace(name, c -> Character.isLetterOrDigit(c) || allowed.get(c) ? null : "_");
+        return linearReplace(name, c -> Character.isLetterOrDigit(c) || allowedCharacters.test(c) ? null : "_");
     }
 
     private static String linearReplace(String str, Function<Character, String> replacer) {

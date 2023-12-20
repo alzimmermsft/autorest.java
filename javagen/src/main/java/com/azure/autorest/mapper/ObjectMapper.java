@@ -7,19 +7,26 @@ import com.azure.autorest.extension.base.model.codemodel.ObjectSchema;
 import com.azure.autorest.extension.base.model.codemodel.SchemaContext;
 import com.azure.autorest.extension.base.plugin.JavaSettings;
 import com.azure.autorest.model.clientmodel.ClassType;
-import com.azure.autorest.model.clientmodel.IType;
 import com.azure.autorest.util.SchemaUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ObjectMapper implements IMapper<ObjectSchema, IType> {
+/**
+ * A mapper that maps a composite type in {@link ObjectSchema} to {@link ClassType}.
+ */
+public class ObjectMapper implements IMapper<ObjectSchema, ClassType> {
     private static final ObjectMapper INSTANCE = new ObjectMapper();
-    Map<ObjectSchema, ClassType> parsed = new ConcurrentHashMap<>();
+    private static final Map<ObjectSchema, ClassType> PARSED = new ConcurrentHashMap<>();
 
     protected ObjectMapper() {
     }
 
+    /**
+     * Gets the global {@link ObjectMapper} instance.
+     *
+     * @return the global {@link ObjectMapper} instance.
+     */
     public static ObjectMapper getInstance() {
         return INSTANCE;
     }
@@ -30,7 +37,12 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType> {
             return null;
         }
 
-        return parsed.computeIfAbsent(compositeType, this::createClassType);
+        ClassType result = PARSED.get(compositeType);
+        if (result != null) {
+            return result;
+        }
+
+        return PARSED.computeIfAbsent(compositeType, this::createClassType);
     }
 
     private ClassType createClassType(ObjectSchema compositeType) {

@@ -15,21 +15,29 @@ import com.azure.autorest.mapper.MethodGroupMapper;
 import com.azure.autorest.model.clientmodel.ClientMethod;
 import com.azure.autorest.model.clientmodel.GenericType;
 import com.azure.autorest.model.clientmodel.IType;
+import com.azure.autorest.model.clientmodel.MethodGroupClient;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * A mapper that maps a {@link OperationGroup} to a {@link MethodGroupClient}.
+ */
 public class FluentMethodGroupMapper extends MethodGroupMapper {
 
     private static final Logger LOGGER = new PluginLogger(FluentGen.getPluginInstance(), FluentMethodGroupMapper.class);
 
     private static final FluentMethodGroupMapper INSTANCE = new FluentMethodGroupMapper();
 
+    /**
+     * Gets the global {@link FluentMethodGroupMapper} instance.
+     *
+     * @return the global {@link FluentMethodGroupMapper} instance.
+     */
     public static FluentMethodGroupMapper getInstance() {
         return INSTANCE;
     }
@@ -45,60 +53,84 @@ public class FluentMethodGroupMapper extends MethodGroupMapper {
 
     List<IType> findSupportedInterfaces(OperationGroup operationGroup, List<ClientMethod> clientMethods) {
         List<IType> interfaces = new ArrayList<>();
-        Optional<IType> classTypeForGet = supportGetMethod(clientMethods);
-        Optional<IType> classTypeForList = supportListMethod(clientMethods);
-        Optional<IType> classTypeForDelete = supportDeleteMethod(clientMethods);
+        IType classTypeForGet = supportGetMethod(clientMethods);
+        if (classTypeForGet != null) {
+            interfaces.add(FluentType.InnerSupportsGet(classTypeForGet));
+        }
 
-        classTypeForGet.ifPresent(iType -> interfaces.add(FluentType.InnerSupportsGet(iType)));
-        classTypeForList.ifPresent(iType -> interfaces.add(FluentType.InnerSupportsList(iType)));
-        classTypeForDelete.ifPresent(iType -> interfaces.add(FluentType.InnerSupportsDelete(iType)));
+        IType classTypeForList = supportListMethod(clientMethods);
+        if (classTypeForList != null) {
+            interfaces.add(FluentType.InnerSupportsList(classTypeForList));
+        }
+
+        IType classTypeForDelete = supportDeleteMethod(clientMethods);
+        if (classTypeForDelete != null) {
+            interfaces.add(FluentType.InnerSupportsDelete(classTypeForDelete));
+        }
 
         if (!interfaces.isEmpty()) {
             LOGGER.info("Method group '{}' support interfaces {}",
                     Utils.getJavaName(operationGroup),
                     interfaces.stream().map(IType::toString).collect(Collectors.toList()));
         }
+
         return interfaces;
     }
 
-    private Optional<IType> supportGetMethod(List<ClientMethod> clientMethods) {
-        return clientMethods.stream()
-                .filter(m -> WellKnownMethodName.GET_BY_RESOURCE_GROUP.getMethodName().equals(m.getName())
-                        && checkNonClientRequiredParameters(m, 2))
-                .map(m -> m.getReturnValue().getType())
-                .findFirst();
+    private static IType supportGetMethod(List<ClientMethod> clientMethods) {
+        for (ClientMethod clientMethod : clientMethods) {
+            if (WellKnownMethodName.GET_BY_RESOURCE_GROUP.getMethodName().equals(clientMethod.getName())
+                && checkNonClientRequiredParameters(clientMethod, 2)) {
+                return clientMethod.getReturnValue().getType();
+            }
+        }
+
+        return null;
     }
 
-    private Optional<IType> supportDeleteMethod(List<ClientMethod> clientMethods) {
-        return clientMethods.stream()
-                .filter(m -> WellKnownMethodName.DELETE.getMethodName().equals(m.getName())
-                        && checkNonClientRequiredParameters(m, 2))
-                .map(m -> m.getReturnValue().getType())
-                .findFirst();
+    private static IType supportDeleteMethod(List<ClientMethod> clientMethods) {
+        for (ClientMethod clientMethod : clientMethods) {
+            if (WellKnownMethodName.DELETE.getMethodName().equals(clientMethod.getName())
+                && checkNonClientRequiredParameters(clientMethod, 2)) {
+                return clientMethod.getReturnValue().getType();
+            }
+        }
+
+        return null;
     }
 
-    private Optional<IType> supportListMethod(List<ClientMethod> clientMethods) {
-        Optional<IType> listType = clientMethods.stream()
-                .filter(m -> WellKnownMethodName.LIST.getMethodName().equals(m.getName())
-                        && checkNonClientRequiredParameters(m, 0))
-                .map(m -> m.getReturnValue().getType())
-                .findFirst();
+    private static IType supportListMethod(List<ClientMethod> clientMethods) {
+        boolean listTypeFound = false;
+        IType listType = null;
+        boolean listByResourceGroupTypeFound = false;
+        IType listByResourceGroupType = null;
 
-        Optional<IType> listByResourceGroupType =clientMethods.stream()
-                .filter(m -> WellKnownMethodName.LIST_BY_RESOURCE_GROUP.getMethodName().equals(m.getName())
-                        && checkNonClientRequiredParameters(m, 1))
-                .map(m -> m.getReturnValue().getType())
-                .findFirst();
+        for (ClientMethod clientMethod : clientMethods) {
+            if (WellKnownMethodName.LIST.getMethodName().equals(clientMethod.getName())
+                    && checkNonClientRequiredParameters(clientMethod, 0)) {
+                listTypeFound = true;
+                listType = clientMethod.getReturnValue().getType();
+            } else if (WellKnownMethodName.LIST_BY_RESOURCE_GROUP.getMethodName().equals(clientMethod.getName())
+                    && checkNonClientRequiredParameters(clientMethod, 1)) {
+                listByResourceGroupTypeFound = true;
+                listByResourceGroupType = clientMethod.getReturnValue().getType();
+            }
 
-        Optional<IType> commonListType = (listType.isPresent() && listByResourceGroupType.isPresent() && Objects.equals(listType.get().toString(), listByResourceGroupType.get().toString()))
+            if (listTypeFound && listByResourceGroupTypeFound) {
+                break;
+            }
+        }
+
+        IType commonListType = (listTypeFound && listByResourceGroupTypeFound
+            && Objects.equals(listType.toString(), listByResourceGroupType.toString()))
                 ? listType
-                : Optional.empty();
+                : null;
 
-        return commonListType.filter(TypeConversionUtils::isPagedIterable)
-                .map(t -> ((GenericType) t).getTypeArguments()[0]);
+        return (commonListType != null && TypeConversionUtils.isPagedIterable(commonListType))
+            ? ((GenericType) commonListType).getTypeArguments()[0] : null;
     }
 
-    private boolean checkNonClientRequiredParameters(ClientMethod clientMethod, int requiredCount) {
+    private static boolean checkNonClientRequiredParameters(ClientMethod clientMethod, int requiredCount) {
         final boolean countRequiredParametersOnly = JavaSettings.getInstance().isRequiredParameterClientMethods();
         return requiredCount == clientMethod.getParameters().stream()
                 .filter(p -> (!countRequiredParametersOnly || p.isRequired()) && !p.isConstant() && !p.isFromClient())

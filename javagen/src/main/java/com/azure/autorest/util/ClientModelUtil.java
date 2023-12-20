@@ -348,9 +348,8 @@ public class ClientModelUtil {
         String artifactId = settings.getArtifactId();
         if (settings.isDataPlaneClient() && CoreUtils.isNullOrEmpty(artifactId)) {
             // convert package/namespace to artifact
-            artifactId = settings.getPackage().toLowerCase(Locale.ROOT)
-                    .replace("com.", "")
-                    .replace(".", "-");
+            artifactId = CodeNamer.linearReplace(settings.getPackage().toLowerCase(Locale.ROOT), "com.", "");
+            artifactId = CodeNamer.linearReplace(artifactId, ".", "-");
         }
         return artifactId;
     }
@@ -377,7 +376,7 @@ public class ClientModelUtil {
 
         String[] values = SPLIT_FLATTEN_PROPERTY_PATTERN.split(serializedName);
         for (int i = 0; i < values.length; ++i) {
-            values[i] = values[i].replace("\\\\.", ".");
+            values[i] = CodeNamer.linearReplace(values[i], "\\\\.", ".");
         }
         return Arrays.asList(values);
     }

@@ -125,7 +125,7 @@ public class ProxyMethodParameter extends MethodParameter {
     }
 
     public final String getParameterReferenceConverted() {
-        return String.format("%1$sConverted", CodeNamer.toCamelCase(CodeNamer.removeInvalidCharacters(getParameterReference())));
+        return CodeNamer.toCamelCase(CodeNamer.removeInvalidCharacters(getParameterReference())) + "Converted";
     }
 
     public final CollectionFormat getCollectionFormat() {
@@ -150,15 +150,16 @@ public class ProxyMethodParameter extends MethodParameter {
 
     public final String convertFromClientType(String source, String target, boolean alwaysNull, boolean alwaysNonNull) {
         if (getClientType() == getWireType()) {
-            return String.format("%1$s %2$s = %3$s;", getWireType(), target, source);
+            return getWireType() + " " + target + " = " + source + ";";
         }
         if (alwaysNull) {
-            return String.format("%1$s %2$s = null;", getWireType(), target);
+            return getWireType() + " " + target + " = null;";
         }
         if (isRequired() || alwaysNonNull) {
-            return String.format("%1$s %2$s = %3$s;", getWireType(), target, getWireType().convertFromClientType(source));
+            return getWireType() + " " + target + " = " + getWireType().convertFromClientType(source) + ";";
         } else {
-            return String.format("%1$s %2$s = %3$s == null ? null : %4$s;", getWireType(), target, source, getWireType().convertFromClientType(source));
+            return getWireType() + " " + target + " = " + source + " == null ? null : "
+                + getWireType().convertFromClientType(source) + ";";
         }
     }
 
@@ -449,24 +450,9 @@ public class ProxyMethodParameter extends MethodParameter {
         }
 
         public ProxyMethodParameter build() {
-            return new ProxyMethodParameter(description,
-                rawType,
-                wireType,
-                clientType,
-                name,
-                requestParameterLocation,
-                requestParameterName,
-                alreadyEncoded,
-                isConstant,
-                isRequired,
-                isNullable,
-                fromClient,
-                headerCollectionPrefix,
-                parameterReference,
-                defaultValue,
-                collectionFormat,
-                explode,
-                origin);
+            return new ProxyMethodParameter(description, rawType, wireType, clientType, name, requestParameterLocation,
+                requestParameterName, alreadyEncoded, isConstant, isRequired, isNullable, fromClient,
+                headerCollectionPrefix, parameterReference, defaultValue, collectionFormat, explode, origin);
         }
     }
 }

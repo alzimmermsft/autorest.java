@@ -11,14 +11,25 @@ import com.azure.autorest.model.clientmodel.ArrayType;
 import com.azure.autorest.model.clientmodel.ClassType;
 import com.azure.autorest.model.clientmodel.IType;
 
+/**
+ * A mapper that maps a primitive type in {@link PrimitiveSchema} to {@link IType}.
+ */
 public class AndroidPrimitiveMapper extends PrimitiveMapper {
-    private static AndroidPrimitiveMapper instance = new AndroidPrimitiveMapper();
+    private static final AndroidPrimitiveMapper INSTANCE = new AndroidPrimitiveMapper();
 
+    /**
+     * Creates an instance of the {@link PrimitiveMapper} class.
+     */
     protected AndroidPrimitiveMapper() {
     }
 
+    /**
+     * Gets the global {@link PrimitiveMapper} instance.
+     *
+     * @return the global {@link PrimitiveMapper} instance.
+     */
     public static PrimitiveMapper getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     @Override

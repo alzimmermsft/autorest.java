@@ -17,13 +17,24 @@ import com.azure.autorest.model.clientmodel.PrimitiveType;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A mapper that maps a primitive type in {@link PrimitiveSchema} to {@link IType}.
+ */
 public class PrimitiveMapper implements IMapper<PrimitiveSchema, IType> {
     private static final PrimitiveMapper INSTANCE = new PrimitiveMapper();
-    protected Map<PrimitiveSchema, IType> parsed = new HashMap<>();
+    protected static final Map<PrimitiveSchema, IType> PARSED = new HashMap<>();
 
+    /**
+     * Creates an instance of the {@link PrimitiveMapper} class.
+     */
     protected PrimitiveMapper() {
     }
 
+    /**
+     * Gets the global {@link PrimitiveMapper} instance.
+     *
+     * @return the global {@link PrimitiveMapper} instance.
+     */
     public static PrimitiveMapper getInstance() {
         return INSTANCE;
     }
@@ -34,7 +45,12 @@ public class PrimitiveMapper implements IMapper<PrimitiveSchema, IType> {
             return null;
         }
 
-        return parsed.computeIfAbsent(primaryType, this::createPrimitiveType);
+        IType result = PARSED.get(primaryType);
+        if (result != null) {
+            return result;
+        }
+
+        return PARSED.computeIfAbsent(primaryType, this::createPrimitiveType);
     }
 
     /**

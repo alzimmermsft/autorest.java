@@ -112,7 +112,7 @@ public class TemplateUtil {
                         for (int i = 0; i < replacements.length; i += 2) {
                             String key = replacements[i];
                             String value = replacements[i+1];
-                            text = text.replace("{{" + key + "}}", value);
+                            text = CodeNamer.linearReplace(text, "{{" + key + "}}", value);
                         }
                     } else {
                         LOGGER.warn("Replacements skipped due to incorrect length: {}", Arrays.asList(replacements));

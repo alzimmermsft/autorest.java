@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * A mapper that maps a composite type in {@link ObjectSchema} to {@link ClassType}.
+ */
 public class FluentObjectMapper extends ObjectMapper {
 
     private static final FluentObjectMapper INSTANCE = new FluentObjectMapper();

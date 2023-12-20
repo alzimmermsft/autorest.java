@@ -27,13 +27,24 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * A mapper that maps a {@link OperationGroup} to a {@link MethodGroupClient}.
+ */
 public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupClient> {
     private static final MethodGroupMapper INSTANCE = new MethodGroupMapper();
-    private final Map<OperationGroup, MethodGroupClient> parsed = new ConcurrentHashMap<>();
+    private static final Map<OperationGroup, MethodGroupClient> PARSED = new ConcurrentHashMap<>();
 
+    /**
+     * Creates an instance of the {@link MethodGroupMapper} class.
+     */
     protected MethodGroupMapper() {
     }
 
+    /**
+     * Gets the global {@link MethodGroupMapper} instance.
+     *
+     * @return The global {@link MethodGroupMapper} instance.
+     */
     public static MethodGroupMapper getInstance() {
         return INSTANCE;
     }
@@ -43,19 +54,24 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
         return this.map(methodGroup, null);
     }
 
+    /**
+     * Maps from {@link OperationGroup} to {@link MethodGroupClient}.
+     *
+     * @param methodGroup The {@link OperationGroup} to map from.
+     * @param parentClientProperties The parent client properties.
+     * @return The {@link MethodGroupClient}.
+     */
     public MethodGroupClient map(OperationGroup methodGroup, List<ServiceClientProperty> parentClientProperties) {
-        MethodGroupClient methodGroupClient = parsed.get(methodGroup);
+        MethodGroupClient methodGroupClient = PARSED.get(methodGroup);
         if (methodGroupClient != null) {
             return methodGroupClient;
         }
 
-        methodGroupClient = createMethodGroupClient(methodGroup, parentClientProperties);
-        parsed.put(methodGroup, methodGroupClient);
-
-        return methodGroupClient;
+        return PARSED.computeIfAbsent(methodGroup, mg -> createMethodGroupClient(mg, parentClientProperties));
     }
 
-    private MethodGroupClient createMethodGroupClient(OperationGroup methodGroup, List<ServiceClientProperty> parentClientProperties) {
+    private MethodGroupClient createMethodGroupClient(OperationGroup methodGroup,
+        List<ServiceClientProperty> parentClientProperties) {
         JavaSettings settings = JavaSettings.getInstance();
         MethodGroupClient.Builder builder = createMethodGroupClientBuilder();
 
@@ -64,7 +80,7 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
         String interfaceName = CodeNamer.getPlural(classBaseName);
         final String interfaceNameForCheckDeduplicate = interfaceName;
         if (ClientModels.getInstance().getModels().stream().anyMatch(cm -> interfaceNameForCheckDeduplicate.equals(cm.getName()))
-            || parsed.values().stream().anyMatch(mg -> interfaceNameForCheckDeduplicate.equals(mg.getInterfaceName()))) {
+            || PARSED.values().stream().anyMatch(mg -> interfaceNameForCheckDeduplicate.equals(mg.getInterfaceName()))) {
             interfaceName += "Operations";
         }
         builder.interfaceName(interfaceName);
@@ -88,15 +104,16 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
             String serviceClientName = methodGroup.getCodeModel().getLanguage().getJava().getName();
             // TODO: Assume all operations share the same base url
             proxyBuilder.name(restAPIName)
-                    .clientTypeName(serviceClientName + interfaceName)
-                    .baseURL(methodGroup.getOperations().get(0).getRequests().get(0).getProtocol().getHttp().getUri());
+                .clientTypeName(serviceClientName + interfaceName)
+                .baseURL(methodGroup.getOperations().get(0).getRequests().get(0).getProtocol().getHttp().getUri());
 
             List<ProxyMethod> restAPIMethods = new ArrayList<>();
             for (Operation method : methodGroup.getOperations()) {
                 if (settings.isDataPlaneClient()) {
                     MethodUtil.tryMergeBinaryRequestsAndUpdateOperation(method.getRequests(), method);
                 }
-                restAPIMethods.addAll(Mappers.getProxyMethodMapper().map(method).values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+                Mappers.getProxyMethodMapper().map(method).values().stream().flatMap(Collection::stream)
+                    .forEach(restAPIMethods::add);
             }
             proxyBuilder.methods(restAPIMethods);
 
@@ -123,10 +140,12 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
 
         String packageName;
         if (settings.isFluent()) {
-            packageName = settings.getPackage(settings.isGenerateClientAsImpl() ? settings.getImplementationSubpackage() : settings.getFluentSubpackage());
+            packageName = settings.getPackage(settings.isGenerateClientAsImpl()
+                ? settings.getImplementationSubpackage() : settings.getFluentSubpackage());
         } else {
             boolean isCustomType = settings.isCustomType(className);
-            packageName = settings.getPackage(isCustomType ? settings.getCustomTypesSubpackage() : (settings.isGenerateClientAsImpl() ? settings.getImplementationSubpackage() : null));
+            packageName = settings.getPackage(isCustomType ? settings.getCustomTypesSubpackage()
+                : (settings.isGenerateClientAsImpl() ? settings.getImplementationSubpackage() : null));
         }
         builder.packageName(packageName);
 
@@ -153,14 +172,31 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
         return builder.build();
     }
 
+    /**
+     * Creates a new {@link MethodGroupClient.Builder}.
+     *
+     * @return A new {@link MethodGroupClient.Builder}.
+     */
     protected MethodGroupClient.Builder createMethodGroupClientBuilder() {
         return new MethodGroupClient.Builder();
     }
 
+    /**
+     * Creates a new {@link Proxy.Builder}.
+     *
+     * @return A new {@link Proxy.Builder}.
+     */
     protected Proxy.Builder createProxyBuilder() {
         return new Proxy.Builder();
     }
 
+    /**
+     * Returns the supported interfaces for the {@link MethodGroupClient}.
+     *
+     * @param operationGroup The {@link OperationGroup} to get the supported interfaces for.
+     * @param clientMethods The {@link ClientMethod ClientMethods} that are supported by the {@link MethodGroupClient}.
+     * @return The supported interfaces for the {@link MethodGroupClient}.
+     */
     protected List<IType> supportedInterfaces(OperationGroup operationGroup, List<ClientMethod> clientMethods) {
         return Collections.emptyList();
     }

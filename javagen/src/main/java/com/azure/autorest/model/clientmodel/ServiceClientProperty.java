@@ -42,7 +42,7 @@ public class ServiceClientProperty {
 
     private final boolean required;
 
-    private String requestParameterName;
+    private final String requestParameterName;
 
     /**
      * Create a new ServiceClientProperty with the provided properties.
@@ -52,16 +52,19 @@ public class ServiceClientProperty {
      * @param readOnly Whether or not this property's value can be changed by the client library.
      * @param defaultValueExpression The expression that evaluates to this property's default value.
      */
-    public ServiceClientProperty(String description, IType type, String name, boolean readOnly, String defaultValueExpression) {
+    public ServiceClientProperty(String description, IType type, String name, boolean readOnly,
+        String defaultValueExpression) {
         this(description, type, name, readOnly, defaultValueExpression, name, JavaVisibility.Public, false, null);
     }
 
-    public ServiceClientProperty(String description, IType type, String name, boolean readOnly, String defaultValueExpression, JavaVisibility methodVisibility) {
+    public ServiceClientProperty(String description, IType type, String name, boolean readOnly,
+        String defaultValueExpression, JavaVisibility methodVisibility) {
         this(description, type, name, readOnly, defaultValueExpression, name, methodVisibility, false, null);
     }
 
-    private ServiceClientProperty(String description, IType type, String name, boolean readOnly, String defaultValueExpression,
-                                  String accessorMethodSuffix, JavaVisibility methodVisibility, boolean required, String requestParameterName) {
+    private ServiceClientProperty(String description, IType type, String name, boolean readOnly,
+        String defaultValueExpression, String accessorMethodSuffix, JavaVisibility methodVisibility, boolean required,
+        String requestParameterName) {
         this.description = description;
         this.type = type;
         this.name = name;
@@ -199,7 +202,7 @@ public class ServiceClientProperty {
                 accessorMethodSuffix = name;
             }
             return new ServiceClientProperty(description, type, name, readOnly, defaultValueExpression,
-                    accessorMethodSuffix, methodVisibility, required, requestParameterName);
+                accessorMethodSuffix, methodVisibility, required, requestParameterName);
         }
     }
 }

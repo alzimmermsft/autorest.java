@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class JavaSettings {
     private static Logger logger;
     private final boolean useKeyCredential;
     private final boolean branded;
-    private boolean noCustomHeaders;
+    private final boolean noCustomHeaders;
 
     static void setHeader(String value) {
         if ("MICROSOFT_MIT".equals(value)) {
@@ -355,6 +356,7 @@ public class JavaSettings {
         this.implementationSubpackage = implementationSubpackage;
         this.modelsSubpackage = modelsSubpackage;
         this.customTypes = (customTypes == null || customTypes.isEmpty()) ? new ArrayList<>() : Arrays.asList(customTypes.split(","));
+        this.customTypesSet = new HashSet<>(this.customTypes);
         this.customTypesSubpackage = customTypesSubpackage;
         this.fluentSubpackage = fluentSubpackage;
         this.requiredParameterClientMethods = requiredParameterClientMethods;
@@ -795,13 +797,25 @@ public class JavaSettings {
     }
 
     private final List<String> customTypes;
+    private final Set<String> customTypesSet;
 
+    /**
+     * Gets the list of custom types.
+     *
+     * @return the list of custom types
+     */
     public List<String> getCustomTypes() {
         return customTypes;
     }
 
+    /**
+     * Whether the given type name is a custom type.
+     *
+     * @param typeName the type name
+     * @return whether the given type name is a custom type
+     */
     public boolean isCustomType(String typeName) {
-        return customTypes.contains(typeName);
+        return customTypesSet.contains(typeName);
     }
 
     private final String customTypesSubpackage;

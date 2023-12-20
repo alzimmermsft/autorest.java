@@ -17,67 +17,67 @@ public class ServiceClient {
     /**
      * The package that this service client belongs to.
      */
-    private String packageName;
+    private final String packageName;
     /**
      * Get the name of this client's class.
      */
-    private String className;
+    private final String className;
     /**
      * Get the name of this client's interface.
      */
-    private String interfaceName;
+    private final String interfaceName;
     /**
      * Get the REST API that this client will send requests to.
      */
-    private Proxy proxy;
+    private final Proxy proxy;
     /**
      * The MethodGroupClients that belong to this ServiceClient.
      */
-    private List<MethodGroupClient> methodGroupClients;
+    private final List<MethodGroupClient> methodGroupClients;
     /**
      * The properties of this ServiceClient.
      */
-    private List<ServiceClientProperty> properties;
+    private final List<ServiceClientProperty> properties;
     /**
      * The constructors for this ServiceClient.
      */
-    private List<Constructor> constructors;
+    private final List<Constructor> constructors;
     /**
      * The client method overloads for this ServiceClient.
      */
-    private List<ClientMethod> clientMethods;
+    private final List<ClientMethod> clientMethods;
     /**
      * The azure environment parameter.
      */
-    private ClientMethodParameter azureEnvironmentParameter;
+    private final ClientMethodParameter azureEnvironmentParameter;
     /**
      * The default poll interval parameter.
      */
-    private ClientMethodParameter defaultPollIntervalParameter;
+    private final ClientMethodParameter defaultPollIntervalParameter;
     /**
      * The credentials parameter.
      */
-    private ClientMethodParameter tokenCredentialParameter;
+    private final ClientMethodParameter tokenCredentialParameter;
     /**
      * The HttpPipeline parameter.
      */
-    private ClientMethodParameter httpPipelineParameter;
+    private final ClientMethodParameter httpPipelineParameter;
 
-    private ClientMethodParameter serializerAdapterParameter;
+    private final ClientMethodParameter serializerAdapterParameter;
 
-    private String clientBaseName;
+    private final String clientBaseName;
 
-    private String defaultCredentialScopes;
+    private final String defaultCredentialScopes;
 
-    private boolean builderDisabled;
+    private final boolean builderDisabled;
     /**
      * The security configuration information.
      */
-    private SecurityInfo securityInfo;
+    private final SecurityInfo securityInfo;
 
-    private String baseUrl;
+    private final String baseUrl;
 
-    private PipelinePolicyDetails pipelinePolicyDetails;
+    private final PipelinePolicyDetails pipelinePolicyDetails;
 
     /**
      * Create a new ServiceClient with the provided properties.
@@ -95,9 +95,14 @@ public class ServiceClient {
      * @param serializerAdapterParameter The SerializerAdapter parameter.
      * @param defaultPollIntervalParameter The default poll interval parameter.
      */
-    protected ServiceClient(String packageName, String className, String interfaceName, Proxy proxy, List<MethodGroupClient> methodGroupClients, List<ServiceClientProperty> properties, List<Constructor> constructors, List<ClientMethod> clientMethods,
-                            ClientMethodParameter azureEnvironmentParameter, ClientMethodParameter tokenCredentialParameter, ClientMethodParameter httpPipelineParameter, ClientMethodParameter serializerAdapterParameter, ClientMethodParameter defaultPollIntervalParameter, String defaultCredentialScopes,
-                            boolean builderDisabled, SecurityInfo securityInfo, String baseUrl, PipelinePolicyDetails pipelinePolicyDetails, String crossLanguageDefinitionId) {
+    protected ServiceClient(String packageName, String className, String interfaceName, Proxy proxy,
+        List<MethodGroupClient> methodGroupClients, List<ServiceClientProperty> properties,
+        List<Constructor> constructors, List<ClientMethod> clientMethods,
+        ClientMethodParameter azureEnvironmentParameter, ClientMethodParameter tokenCredentialParameter,
+        ClientMethodParameter httpPipelineParameter, ClientMethodParameter serializerAdapterParameter,
+        ClientMethodParameter defaultPollIntervalParameter, String defaultCredentialScopes, boolean builderDisabled,
+        SecurityInfo securityInfo, String baseUrl, PipelinePolicyDetails pipelinePolicyDetails,
+        String crossLanguageDefinitionId) {
         this.packageName = packageName;
         this.className = className;
         this.interfaceName = interfaceName;
@@ -211,7 +216,8 @@ public class ServiceClient {
      * @param imports The set of imports to add to.
      * @param includeImplementationImports Whether to include imports that are only necessary for method implementations.
      */
-    public final void addImportsTo(Set<String> imports, boolean includeImplementationImports, boolean includeBuilderImports, JavaSettings settings) {
+    public final void addImportsTo(Set<String> imports, boolean includeImplementationImports,
+        boolean includeBuilderImports, JavaSettings settings) {
         if (!includeBuilderImports) {
             for (ClientMethod clientMethod : getClientMethods()) {
                 clientMethod.addImportsTo(imports, includeImplementationImports, settings);
@@ -236,22 +242,22 @@ public class ServiceClient {
 
             if (!settings.isGenerateClientInterfaces()) {
                 for (MethodGroupClient methodGroupClient : getMethodGroupClients()) {
-                    imports.add(String.format("%1$s.%2$s", methodGroupClient.getPackage(), methodGroupClient.getClassName()));
+                    imports.add(methodGroupClient.getPackage() + "." + methodGroupClient.getClassName());
                 }
             } else {
                 String interfacePackage = ClientModelUtil.getServiceClientInterfacePackageName();
-                imports.add(String.format("%1$s.%2$s", interfacePackage, this.getInterfaceName()));
+                imports.add(interfacePackage + "." + interfaceName);
                 for (MethodGroupClient methodGroupClient : this.getMethodGroupClients()) {
-                    imports.add(String.format("%1$s.%2$s", interfacePackage, methodGroupClient.getInterfaceName()));
+                    imports.add(interfacePackage + "." + methodGroupClient.getInterfaceName());
                 }
             }
         }
 
         if (includeBuilderImports || includeImplementationImports) {
             if (!settings.isFluent() && settings.isGenerateClientInterfaces()) {
-                imports.add(String.format("%1$s.%2$s", settings.getPackage(), getInterfaceName()));
+                imports.add(settings.getPackage() + "." + interfaceName);
                 for (MethodGroupClient methodGroupClient : getMethodGroupClients()) {
-                    imports.add(String.format("%1$s.%2$s", settings.getPackage(), methodGroupClient.getInterfaceName()));
+                    imports.add(settings.getPackage() + "." + methodGroupClient.getInterfaceName());
                 }
             }
 
@@ -260,7 +266,7 @@ public class ServiceClient {
         }
 
         if (includeBuilderImports) {
-            imports.add(String.format("%1$s.%2$s", getPackage(), getClassName()));
+            imports.add(packageName + "." + className);
         }
 
         Proxy proxy = getProxy();
@@ -487,25 +493,10 @@ public class ServiceClient {
         }
 
         public ServiceClient build() {
-            return new ServiceClient(packageName,
-                    className,
-                    interfaceName,
-                    proxy,
-                    methodGroupClients,
-                    properties,
-                    constructors,
-                    clientMethods,
-                    azureEnvironmentParameter,
-                    tokenCredentialParameter,
-                    httpPipelineParameter,
-                    serializerAdapterParameter,
-                    defaultPollIntervalParameter,
-                    defaultCredentialScopes,
-                    builderDisabled,
-                    securityInfo,
-                    baseUrl,
-                    pipelinePolicyDetails,
-                    crossLanguageDefinitionId);
+            return new ServiceClient(packageName, className, interfaceName, proxy, methodGroupClients, properties,
+                constructors, clientMethods, azureEnvironmentParameter, tokenCredentialParameter, httpPipelineParameter,
+                serializerAdapterParameter, defaultPollIntervalParameter, defaultCredentialScopes, builderDisabled,
+                securityInfo, baseUrl, pipelinePolicyDetails, crossLanguageDefinitionId);
         }
 
         public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {

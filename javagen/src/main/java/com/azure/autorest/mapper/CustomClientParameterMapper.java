@@ -16,6 +16,9 @@ import com.azure.autorest.util.CodeNamer;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * A mapper that maps an {@link Parameter} to a {@link ClientMethodParameter}.
+ */
 public class CustomClientParameterMapper implements IMapper<Parameter, ClientMethodParameter> {
 
     private static final CustomClientParameterMapper INSTANCE = new CustomClientParameterMapper();
@@ -23,21 +26,27 @@ public class CustomClientParameterMapper implements IMapper<Parameter, ClientMet
     private CustomClientParameterMapper() {
     }
 
+    /**
+     * Gets the global {@link CustomClientParameterMapper} instance.
+     *
+     * @return The global {@link CustomClientParameterMapper} instance.
+     */
     public static CustomClientParameterMapper getInstance() {
         return INSTANCE;
     }
 
     @Override
     public ClientMethodParameter map(Parameter parameter) {
-        String name = parameter.getOriginalParameter() != null && parameter.getLanguage().getJava().getName().equals(parameter.getOriginalParameter().getLanguage().getJava().getName())
-                ? CodeNamer.toCamelCase(parameter.getOriginalParameter().getSchema().getLanguage().getJava().getName()) + CodeNamer.toPascalCase(parameter.getLanguage().getJava().getName())
-                : parameter.getLanguage().getJava().getName();
+        String name = parameter.getOriginalParameter() != null && parameter.getLanguage().getJava().getName()
+            .equals(parameter.getOriginalParameter().getLanguage().getJava().getName()) ?
+            CodeNamer.toCamelCase(parameter.getOriginalParameter().getSchema().getLanguage().getJava().getName())
+                + CodeNamer.toPascalCase(parameter.getLanguage().getJava().getName())
+            : parameter.getLanguage().getJava().getName();
 
         JavaSettings settings = JavaSettings.getInstance();
-        ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder()
-                .name(name)
-                .required(parameter.isRequired())
-                .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT);
+        ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder().name(name)
+            .required(parameter.isRequired())
+            .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT);
 
         IType wireType = Mappers.getSchemaMapper().map(parameter.getSchema());
         if (parameter.getSchema() instanceof ArraySchema) {
@@ -52,8 +61,9 @@ public class CustomClientParameterMapper implements IMapper<Parameter, ClientMet
         }
         builder.wireType(wireType);
 
-        builder.annotations(settings.isNonNullAnnotations() && parameter.isRequired() ?
-            Collections.singletonList(ClassType.NON_NULL) : new ArrayList<>());
+        builder.annotations(
+            settings.isNonNullAnnotations() && parameter.isRequired() ? Collections.singletonList(ClassType.NON_NULL)
+                : new ArrayList<>());
 
         boolean isConstant = false;
         String defaultValue = null;

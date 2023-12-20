@@ -5,6 +5,7 @@ package com.azure.autorest.android.mapper;
 
 import com.azure.autorest.android.model.clientmodel.AndroidProxy;
 import com.azure.autorest.android.model.clientmodel.AndroidServiceClient;
+import com.azure.autorest.extension.base.model.codemodel.CodeModel;
 import com.azure.autorest.extension.base.plugin.JavaSettings;
 import com.azure.autorest.mapper.ServiceClientMapper;
 import com.azure.autorest.model.clientmodel.ClassType;
@@ -15,15 +16,26 @@ import com.azure.autorest.model.javamodel.JavaVisibility;
 
 import java.util.List;
 
+/**
+ * A mapper that maps a service client in {@link CodeModel} to {@link ServiceClient}.
+ */
 public class AndroidServiceClientMapper extends ServiceClientMapper {
 
-    private static ServiceClientMapper instance = new AndroidServiceClientMapper();
+    private static final ServiceClientMapper INSTANCE = new AndroidServiceClientMapper();
 
+    /**
+     * Creates an instance of the {@link ServiceClientMapper} class.
+     */
     protected AndroidServiceClientMapper() {
     }
 
+    /**
+     * Gets the singleton instance of the {@link ServiceClientMapper} class.
+     *
+     * @return the singleton instance of the {@link ServiceClientMapper} class.
+     */
     public static ServiceClientMapper getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     @Override

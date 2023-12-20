@@ -102,14 +102,11 @@ public class ProxyMethod {
     private final boolean customHeaderIgnored;
 
     protected ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
-        String urlPath, List<Integer> responseExpectedStatusCodes,
-        ClassType unexpectedResponseExceptionType,
-        Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes,
-        String name, List<ProxyMethodParameter> parameters,
-        List<ProxyMethodParameter> allParameters, String description,
-        IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType,
-        boolean isResumable, Set<String> responseContentTypes,
-        String operationId, Map<String, ProxyMethodExample> examples,
+        String urlPath, List<Integer> responseExpectedStatusCodes, ClassType unexpectedResponseExceptionType,
+        Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes, String name,
+        List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
+        IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType, boolean isResumable,
+        Set<String> responseContentTypes, String operationId, Map<String, ProxyMethodExample> examples,
         List<String> specialHeaders) {
         this(requestContentType, returnType, httpMethod, baseUrl, urlPath, responseExpectedStatusCodes,
             unexpectedResponseExceptionType, unexpectedResponseExceptionTypes, name, parameters, allParameters,
@@ -141,14 +138,11 @@ public class ProxyMethod {
      * @param baseName the base name of the REST method.
      */
     protected ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
-        String urlPath, List<Integer> responseExpectedStatusCodes,
-        ClassType unexpectedResponseExceptionType,
-        Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes,
-        String name, List<ProxyMethodParameter> parameters,
-        List<ProxyMethodParameter> allParameters, String description,
-        IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType,
-        boolean isResumable, Set<String> responseContentTypes,
-        String operationId, Map<String, ProxyMethodExample> examples,
+        String urlPath, List<Integer> responseExpectedStatusCodes, ClassType unexpectedResponseExceptionType,
+        Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes, String name,
+        List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
+        IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType, boolean isResumable,
+        Set<String> responseContentTypes, String operationId, Map<String, ProxyMethodExample> examples,
         List<String> specialHeaders, boolean isSync, String baseName, boolean customHeaderIgnored) {
         this.requestContentType = requestContentType;
         this.returnType = returnType;
@@ -697,28 +691,10 @@ public class ProxyMethod {
          * @return an immutable ProxyMethod instance with the configurations on this builder.
          */
         public ProxyMethod build() {
-            return new ProxyMethod(requestContentType,
-                returnType,
-                httpMethod,
-                baseUrl,
-                urlPath,
-                responseExpectedStatusCodes,
-                unexpectedResponseExceptionType,
-                unexpectedResponseExceptionTypes,
-                name,
-                parameters,
-                allParameters,
-                description,
-                returnValueWireType,
-                responseBodyType,
-                rawResponseBodyType,
-                isResumable,
-                responseContentTypes,
-                operationId,
-                examples,
-                specialHeaders,
-                isSync,
-                baseName,
+            return new ProxyMethod(requestContentType, returnType, httpMethod, baseUrl, urlPath,
+                responseExpectedStatusCodes, unexpectedResponseExceptionType, unexpectedResponseExceptionTypes, name,
+                parameters, allParameters, description, returnValueWireType, responseBodyType, rawResponseBodyType,
+                isResumable, responseContentTypes, operationId, examples, specialHeaders, isSync, baseName,
                 customHeaderIgnored);
         }
     }

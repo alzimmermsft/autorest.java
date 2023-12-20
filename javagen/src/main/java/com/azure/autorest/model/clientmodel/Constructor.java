@@ -13,7 +13,7 @@ public class Constructor {
     /**
      * The parameters of this constructor.
      */
-    private List<ClientMethodParameter> parameters;
+    private final List<ClientMethodParameter> parameters;
 
     public Constructor(List<ClientMethodParameter> parameters) {
         this.parameters = parameters;

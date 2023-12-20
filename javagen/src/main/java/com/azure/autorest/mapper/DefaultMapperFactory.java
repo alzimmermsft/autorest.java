@@ -3,6 +3,9 @@
 
 package com.azure.autorest.mapper;
 
+/**
+ * The default {@link MapperFactory} implementation.
+ */
 public class DefaultMapperFactory implements MapperFactory {
     @Override
     public ChoiceMapper getChoiceMapper() {
