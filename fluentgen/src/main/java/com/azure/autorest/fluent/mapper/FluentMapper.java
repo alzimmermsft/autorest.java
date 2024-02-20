@@ -157,17 +157,22 @@ public class FluentMapper {
         JavaSettings settings = JavaSettings.getInstance();
         ModuleInfo moduleInfo = new ModuleInfo(settings.getPackage());
 
-        List<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
+        Set<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
         requireModules.add(new ModuleInfo.RequireModule("com.azure.core.management", true));
+        if (settings.isStreamStyleSerialization()) {
+            requireModules.add(new ModuleInfo.RequireModule("com.azure.json", false));
+        }
 
-        List<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
+        Set<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage()));
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getFluentSubpackage())));
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getFluentModelsSubpackage())));
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage(settings.getModelsSubpackage())));
 
-        List<String> openToModules = Arrays.asList("com.azure.core", "com.fasterxml.jackson.databind");
-        List<ModuleInfo.OpenModule> openModules = moduleInfo.getOpenModules();
+        List<String> openToModules = settings.isStreamStyleSerialization()
+            ? Collections.singletonList("com.azure.core")
+            : Arrays.asList("com.azure.core", "com.fasterxml.jackson.databind");
+        Set<ModuleInfo.OpenModule> openModules = moduleInfo.getOpenModules();
         openModules.add(new ModuleInfo.OpenModule(settings.getPackage(settings.getFluentModelsSubpackage()), openToModules));
         openModules.add(new ModuleInfo.OpenModule(settings.getPackage(settings.getModelsSubpackage()), openToModules));
 

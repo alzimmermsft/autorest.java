@@ -591,13 +591,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         JavaSettings settings = JavaSettings.getInstance();
         ModuleInfo moduleInfo = new ModuleInfo(settings.getPackage());
 
-        List<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
+        Set<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
         requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.CORE.getPackageName(), true));
         if (settings.isStreamStyleSerialization()) {
             requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.JSON.getPackageName(), false));
         }
 
-        List<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
+        Set<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
         exportModules.add(new ModuleInfo.ExportModule(settings.getPackage()));
 
         final String implementationSubpackagePrefix = settings.getPackage(settings.getImplementationSubpackage()) + ".";
@@ -613,7 +613,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             if (!settings.isStreamStyleSerialization()) {
                 openToModules.add("com.fasterxml.jackson.databind");
             }
-            List<ModuleInfo.OpenModule> openModules = moduleInfo.getOpenModules();
+            Set<ModuleInfo.OpenModule> openModules = moduleInfo.getOpenModules();
             openModules.add(new ModuleInfo.OpenModule(modelsPackage, openToModules));
         }
 

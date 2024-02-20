@@ -3,16 +3,16 @@
 
 package com.azure.autorest.model.clientmodel;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public class ModuleInfo {
     private final String moduleName;
-    private final List<RequireModule> requireModules = new ArrayList<>();
-    private final List<ExportModule> exportModules = new ArrayList<>();
-    private final List<OpenModule> openModules = new ArrayList<>();
+    private final Set<RequireModule> requireModules = new LinkedHashSet<>();
+    private final Set<ExportModule> exportModules = new LinkedHashSet<>();
+    private final Set<OpenModule> openModules = new LinkedHashSet<>();
 
     public static class RequireModule {
         private final String moduleName;
@@ -123,15 +123,15 @@ public class ModuleInfo {
         return moduleName;
     }
 
-    public List<RequireModule> getRequireModules() {
+    public Set<RequireModule> getRequireModules() {
         return requireModules;
     }
 
-    public List<ExportModule> getExportModules() {
+    public Set<ExportModule> getExportModules() {
         return exportModules;
     }
 
-    public List<OpenModule> getOpenModules() {
+    public Set<OpenModule> getOpenModules() {
         return openModules;
     }
 
